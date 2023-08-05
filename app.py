@@ -3,9 +3,21 @@ from firebase import db
 from schemas import DraftShotData, ShotData
 from helpers import checkShortData, getShortData, getUserDrafts, getUserShotWithDocId, getUserShots, getUserShotsWithDocId, getUsersIdList
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+origins = [
+    'https://design.darkmaterial.space',
+    'https://darkmaterial.space',
+    'http://localhost:3000'
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"]
+)
 
 @app.get('/')
 def hello_world():
