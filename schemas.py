@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel
 
 class UserShortData(BaseModel):
@@ -30,7 +30,7 @@ class TextBlock(BaseModel):
 
 class ShotGridBlock(BaseModel):
     type: str
-    ids: list[str]
+    ids: List[str]
 
     class Config: 
         orm_mode = True
@@ -47,7 +47,7 @@ class CommentBlock(BaseModel):
     authorId: str
     text: str
     createdAt: int
-    answers: list[CommentBlockNoAnswers]
+    answers: List[CommentBlockNoAnswers]
 
     class Config: 
         orm_mode = True
@@ -55,7 +55,7 @@ class CommentBlock(BaseModel):
 class ShotDataForUpload(BaseModel):
     title: str
     rootBlock: ImageBlock
-    blocks: list[TextBlock | ShotGridBlock | ImageBlock]
+    blocks: List[TextBlock | ShotGridBlock | ImageBlock]
 
     class Config: 
         orm_mode = True
@@ -65,7 +65,7 @@ class DraftShotData(BaseModel):
     authorId: str
     title: str
     rootBlock: ImageBlock
-    blocks: list[TextBlock | ShotGridBlock | ImageBlock]
+    blocks: List[TextBlock | ShotGridBlock | ImageBlock]
     createdAt: int
 
     class Config: 
@@ -76,13 +76,13 @@ class ShotData(BaseModel):
     authorId: str
     title: str
     rootBlock: ImageBlock
-    blocks: list[TextBlock | ShotGridBlock | ImageBlock]
+    blocks: List[TextBlock | ShotGridBlock | ImageBlock]
     createdAt: int
-    likes: list[str]
-    views: list[str]
-    comments: list[CommentBlock]
+    likes: List[str]
+    views: List[str]
+    comments: List[CommentBlock]
     needFeedback: bool
-    tags: list[str]
+    tags: List[str]
     thumbnail: Optional[ImageBlock]
 
     class Config: 
