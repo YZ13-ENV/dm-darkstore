@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Any, Dict
+from database.user import getUsersIdList
 from firebase import db
 from schemas.draft import DraftShotData
 from schemas.shot import ShotDataForUpload
@@ -53,12 +54,12 @@ async def getDrafts(userId: str, asDoc: bool):
     draftsList = []
     for draft in drafts:
         draftData = draft.to_dict()
-        if asDoc:
-            draftData['doc_id'] = draft.id
-            draftsList.append(draftData)
-        else:
-            draftsList.append(draftData)
-
+        if draftData.get('isDraft') == True:
+            if asDoc:
+                draftData['doc_id'] = draft.id
+                draftsList.append(draftData)
+            else:
+                draftsList.append(draftData)
     return draftsList
 
 async def getShots(userId: str, asDoc: bool):
@@ -67,13 +68,22 @@ async def getShots(userId: str, asDoc: bool):
     shotsList = []
     for shot in shots:
         shotData: Dict[str, Any] = shot.to_dict()
-        
-        if (asDoc):
-            shotData['doc_id'] = shot.id
-            shotsList.append(shotData)
+        if shotData.get('isDraft') == False:
+            if (asDoc):
+                shotData['doc_id'] = shot.id
+                shotsList.append(shotData)
 
-        if (not asDoc):
-            shotsList.append(shotData)
+            if (not asDoc):
+                shotsList.append(shotData)
+    return shotsList
 
-        shotsList.append(shotData)
+async def getAllUsersShots():
+    userIds = await getUsersIdList()
+    shotsList = []
+
+    for user in userIds:
+        shots = await getShots(user, True)
+        for shot in shots:
+            shotsList.append(shot)
+    
     return shotsList

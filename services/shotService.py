@@ -1,13 +1,24 @@
-from database.shot import getShots, getDrafts
+from typing import Optional
+from database.shot import getAllUsersShots, getShots, getDrafts
 
 class ShotService():
-    def __init__(self, userId: str):
+    def __init__(self, userId: Optional[str] ):
         self.__userId = userId
 
     async def getShots(self, asDoc: bool):
-        shots = await getShots(self.__userId, asDoc)
-        return shots
+        if (self.__userId):
+            shots = await getShots(self.__userId, asDoc)
+            return shots
+        else:
+            return None
 
-    async def getDraft(self, asDoc: bool):
-        drafts = await getDrafts(self.__userId, asDoc)
-        return drafts
+    async def getDrafts(self, asDoc: bool):
+        if (self.__userId):
+            drafts = await getDrafts(self.__userId, asDoc)
+            return drafts
+        else:
+            return None
+        
+    async def getAllUsersShots(self):
+        shots = await getAllUsersShots()
+        return shots
