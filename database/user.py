@@ -1,3 +1,4 @@
+from typing import Optional
 from firebase import db, auth
 # from schemas.user import UserShortData
 from helpers import isShortsDataNotEq
@@ -12,6 +13,20 @@ async def getUsersIdList():
 
     return idsList
 
+
+async def updateUser(userId: str, displayName: Optional[str], photoUrl: Optional[str]):
+    if (displayName and not photoUrl):
+        auth.update_user(uid=userId, displayName=displayName)
+        return True
+    if (not displayName and photoUrl):
+        auth.update_user(uid=userId, photoUrl=photoUrl)
+        return True
+    if (displayName and photoUrl):
+        auth.update_user(uid=userId, displayName=displayName, photoUrl=photoUrl)
+        return True
+
+    return False
+
 async def getShortData(userId: str):
     userRef = db.collection('users').document(userId)
     userSnap = await userRef.get()
@@ -20,8 +35,9 @@ async def getShortData(userId: str):
         return None
     return userDict['short']
 
+
 async def setShortDataFromDB(userId: str):
-    record = await getShortDataFromDB(userId=userId)
+    record = await getUserRecord(userId=userId)
     if record:
         short = {
             'short': {
@@ -35,14 +51,31 @@ async def setShortDataFromDB(userId: str):
         return True
     return False
 
+async def getShortDataFromRecord(userId: str):
+    record = await getUserRecord(userId=userId)
+    if record:
+        short = {
+            'short': {
+                'email': record._data['email'],
+                'displayName': record._data['displayName'],
+                'photoUrl': record._data['photoUrl'],
+            }
+        }
+        return short
+    else:
+        return None
 
-async def getShortDataFromDB(userId: str):
-    user = auth.get_user(userId)
-    return user
+
+async def getUserRecord(userId: str):
+    try:
+        user = auth.get_user(userId)
+        return user
+    except:
+        return None
 
 async def isLocalAndDBShortEq(userId: str):
     shortData = await getShortData(userId)
-    record = await getShortDataFromDB(userId=userId)
+    record = await getUserRecord(userId=userId)
     if (record and shortData):
         shortFromRecord = {
             'email': record._data['email'],
