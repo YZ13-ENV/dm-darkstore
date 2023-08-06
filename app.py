@@ -5,7 +5,7 @@ from api.user import router as UserRouter
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url=None)
 
 app.include_router(ShotRouter)
 app.include_router(UserRouter)
