@@ -1,14 +1,5 @@
-from typing import List, Optional, Union
 from pydantic import BaseModel
-
-class UserShortData(BaseModel):
-    email: str
-    displayName: str
-    photoUrl: str
-
-    class Config: 
-        orm_mode = True
-
+from typing import Union, List, Optional
 
 class ImageBlock(BaseModel):
     type: str
@@ -56,17 +47,6 @@ class ShotDataForUpload(BaseModel):
     title: str
     rootBlock: ImageBlock
     blocks: Union[TextBlock, ShotGridBlock, ImageBlock]
-
-    class Config: 
-        orm_mode = True
-
-class DraftShotData(BaseModel):
-    isDraft: bool
-    authorId: str
-    title: str
-    rootBlock: ImageBlock
-    blocks: Union[TextBlock, ShotGridBlock, ImageBlock]
-    createdAt: int
 
     class Config: 
         orm_mode = True

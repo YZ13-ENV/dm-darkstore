@@ -1,5 +1,5 @@
 from firebase import db, auth
-from schemas import UserShortData
+from schemas.user import UserShortData
 
 async def getShortData(userId: str):
     userRef = db.collection('users').document(userId)
@@ -92,10 +92,10 @@ async def getUserDrafts(userId: str):
     shots = await shotsRef.get()
     shotsList = []
     for shot in shots:
-            shotData = shot.to_dict()
-            shotData['doc_id'] = shot.id
-            if shotData['isDraft'] == True:
-                shotsList.append(shotData)
+        shotData = shot.to_dict()
+        shotData['doc_id'] = shot.id
+        if shotData['isDraft'] == True:
+            shotsList.append(shotData)
 
     return shotsList
 
