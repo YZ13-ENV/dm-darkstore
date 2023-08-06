@@ -1,5 +1,5 @@
-from fastapi import APIRouter
 from services.shotService import ShotService
+from fastapi import APIRouter
 router = APIRouter(
     prefix='/shots',
     tags=['Работы']
