@@ -1,5 +1,6 @@
+from __future__ import annotations
 from pydantic import BaseModel
-from typing import Union, List, Optional
+from typing import Union, Optional
 
 class ImageBlock(BaseModel):
     type: str
@@ -21,7 +22,7 @@ class TextBlock(BaseModel):
 
 class ShotGridBlock(BaseModel):
     type: str
-    ids: List[str]
+    ids: list[str]
 
     class Config: 
         orm_mode = True
@@ -38,7 +39,7 @@ class CommentBlock(BaseModel):
     authorId: str
     text: str
     createdAt: int
-    answers: List[CommentBlockNoAnswers]
+    answers: list[CommentBlockNoAnswers]
 
     class Config: 
         orm_mode = True
@@ -58,11 +59,11 @@ class ShotData(BaseModel):
     rootBlock: ImageBlock
     blocks: Union[TextBlock, ShotGridBlock, ImageBlock]
     createdAt: int
-    likes: List[str]
-    views: List[str]
-    comments: List[CommentBlock]
+    likes: list[str]
+    views: list[str]
+    comments: list[CommentBlock]
     needFeedback: bool
-    tags: List[str]
+    tags: list[str]
     thumbnail: Optional[ImageBlock]
 
     class Config: 

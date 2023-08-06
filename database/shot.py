@@ -1,9 +1,9 @@
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 from database.user import getUsersIdList
 from firebase import db
 from schemas.draft import DraftShotData
-from schemas.shot import ShotDataForUpload
+from schemas.shot import CommentBlock, ImageBlock, ShotData, ShotDataForUpload
 
 
 async def addShotAsDraft(userId: str, shotId: str, shot: ShotDataForUpload):
@@ -25,8 +25,39 @@ async def addShotAsDraft(userId: str, shotId: str, shot: ShotDataForUpload):
         draftRef.set(filledDraft)
         return True
 
+async def publishDraft(
+        userId: str, draftId: str, draft: DraftShotData,
+        needFeedBack: bool, tags: List[str], thumbnail: Optional[ImageBlock]=None
+    ):
+    draftRef = db.collection('users').document(userId).collection('shots').document(draftId)
+    draftSnap = await draftRef.get()
+    dictDraft = draft.dict()
+    filledShot = {
+        'isDraft': False,
+        'authorId': userId,
+        'title': dictDraft.get('title'),
+        'rootBlock': dictDraft.get('rootBlock'),
+        'blocks': dictDraft.get('blocks'),
+        'createdAt': datetime.today().timestamp(),
+        'likes': [],
+        'views': [],
+        'comments': [],
+        'needFeedback': needFeedBack,
+        'tags': tags,
+        'thumbnail': thumbnail.dict()
 
-async def updateDraft(userId: str, draftId: str, draft: DraftShotData):
+    }
+    if (draftSnap.exists):
+        filledShot.update({'createdAt': draftSnap.get('createdAt')})
+        if thumbnail == None:
+            filledShot.pop('thumbnail')
+            await draftRef.set(filledShot)
+        await draftRef.set(filledShot)
+        return True
+    else:
+        return False
+
+async def updateDraft(userId: str, draftId: str, draft: ShotDataForUpload):
     # patch
     draftRef = db.collection('users').document(userId).collection('shots').document(draftId)
     draftSnap = await draftRef.get()
@@ -44,7 +75,7 @@ async def updateDraft(userId: str, draftId: str, draft: DraftShotData):
         return True
     else:
         snapDict = draftSnap.to_dict()
-        filledDraft['createdAt'] = snapDict['createdAt']
+        filledDraft.update({'createdAt': snapDict.get('createdAt')})
         await draftRef.update(filledDraft)
         return True
     
