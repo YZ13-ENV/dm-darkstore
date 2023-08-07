@@ -24,3 +24,9 @@ async def updateUser(userId: str, displayName: Optional[str]=None, photoUrl: Opt
     service = UserService(userId=userId)
     isComplete = service.updateUser(displayName, photoUrl)
     return isComplete
+
+@router.get('/shortByEmail')
+async def getShortByEmail(email: str):
+    service = UserService('')
+    shortData = await service.getShortDataByEmail(email)
+    return shortData

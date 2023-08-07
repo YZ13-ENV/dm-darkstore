@@ -2,6 +2,8 @@ from typing import Optional
 from firebase import db, auth
 # from schemas.user import UserShortData
 from helpers import isShortsDataNotEq
+
+
 async def getUsersIdList():
     usersRef = db.collection('users')
     users = await usersRef.get()
@@ -65,6 +67,28 @@ async def getShortDataFromRecord(userId: str):
     else:
         return None
 
+async def getShortDataByEmail(email: str):
+    try:
+        record = auth.get_user_by_email(email=email)
+        if record:
+            short = {
+                'short': {
+                    'email': record._data['email'],
+                    'displayName': record._data['displayName'],
+                    'photoUrl': record._data['photoUrl'],
+                }
+            }
+            return short
+    except:
+        return None
+
+async def getUserUIDByEmail(email: str):
+    try:
+        record = auth.get_user_by_email(email=email)
+        if record:
+            return record.uid
+    except:
+        return None
 
 async def getUserRecord(userId: str):
     try:

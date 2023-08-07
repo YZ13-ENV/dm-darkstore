@@ -1,6 +1,6 @@
 from typing import Dict, Any
 from firebase import auth
-from database.user import updateUser, getShortDataFromRecord
+from database.user import getShortDataByEmail, updateUser, getShortDataFromRecord
 
 class UserService():
     def __init__(self, userId: str):
@@ -12,6 +12,10 @@ class UserService():
             return data
         else:
             return None
+
+    async def getShortDataByEmail(self, email: str):
+        data = await getShortDataByEmail(email)
+        return data
 
     async def generateCustomToken(self):
         if (self.__userId):
