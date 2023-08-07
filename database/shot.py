@@ -31,7 +31,7 @@ async def publishDraft(
     ):
     draftRef = db.collection('users').document(userId).collection('shots').document(draftId)
     draftSnap = await draftRef.get()
-    dictDraft = draft.dict()
+    dictDraft = draft.model_dump()
     filledShot = {
         'isDraft': False,
         'authorId': userId,
@@ -44,7 +44,7 @@ async def publishDraft(
         'comments': [],
         'needFeedback': needFeedBack,
         'tags': tags,
-        'thumbnail': thumbnail.dict()
+        'thumbnail': thumbnail.model_dump()
 
     }
     if (draftSnap.exists):
@@ -61,7 +61,7 @@ async def updateDraft(userId: str, draftId: str, draft: ShotDataForUpload):
     # patch
     draftRef = db.collection('users').document(userId).collection('shots').document(draftId)
     draftSnap = await draftRef.get()
-    dictDraft = draft.dict()
+    dictDraft = draft.model_dump()
     filledDraft = {
         'isDraft': True,
         'authorId': userId,

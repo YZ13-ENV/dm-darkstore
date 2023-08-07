@@ -47,7 +47,7 @@ class CommentBlock(BaseModel):
 class ShotDataForUpload(BaseModel):
     title: str
     rootBlock: ImageBlock
-    blocks: Union[TextBlock, ShotGridBlock, ImageBlock]
+    blocks: List[Union[TextBlock, ShotGridBlock, ImageBlock]]
 
     class Config: 
         orm_mode = True
@@ -57,7 +57,7 @@ class ShotData(BaseModel):
     authorId: str
     title: str
     rootBlock: ImageBlock
-    blocks: Union[TextBlock, ShotGridBlock, ImageBlock]
+    blocks: List[Union[TextBlock, ShotGridBlock, ImageBlock]]
     createdAt: int
     likes: List[str]
     views: List[str]
