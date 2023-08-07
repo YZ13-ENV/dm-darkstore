@@ -118,3 +118,13 @@ async def getAllUsersShots():
             shotsList.append(shot)
     
     return shotsList
+
+async def getShot(userId: str, shotId: str):
+    shotRef = db.collection('users').document(userId).collection('shots').document(shotId)
+    shotSnap = await shotRef.get()
+    if shotSnap.exists:
+        snapDict = shotSnap.to_dict()
+        snapDict['doc_id'] = shotSnap.id
+        return snapDict
+    else:
+        return None

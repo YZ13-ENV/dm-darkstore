@@ -1,11 +1,11 @@
 from api.shot import router as ShotRouter
 from api.user import router as UserRouter
 
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(docs_url=None, redoc_url=None)
+# app = FastAPI(docs_url=None, redoc_url=None)
+app = FastAPI()
 
 app.include_router(ShotRouter)
 app.include_router(UserRouter)

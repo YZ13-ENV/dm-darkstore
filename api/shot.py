@@ -37,3 +37,9 @@ async def publishDraft(userId: str, draftId: str, draft: DraftShotData, needFeed
     service = ShotService(userId=userId)
     isDone = await service.publishDraft(draftId=draftId, draft=draft, needFeedBack=needFeedBack, tags=tags, thumbnail=thumbnail)
     return isDone
+
+@router.get('/shot')
+async def getShot(userId: str, shotId: str):
+    service = ShotService(userId=userId)
+    shot = await service.getShot(shotId=shotId)
+    return shot

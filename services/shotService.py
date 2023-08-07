@@ -1,5 +1,5 @@
 from typing import List, Optional
-from database.shot import getAllUsersShots, getShots, getDrafts, updateDraft, publishDraft
+from database.shot import getAllUsersShots, getShots, getDrafts, updateDraft, publishDraft, getShot
 from schemas.draft import DraftShotData
 from schemas.shot import ImageBlock, ShotDataForUpload
 
@@ -11,6 +11,13 @@ class ShotService():
         if (self.__userId):
             shots = await getShots(self.__userId, asDoc)
             return shots
+        else:
+            return None
+
+    async def getShot(self, shotId: str):
+        if self.__userId:
+            shot = await getShot(self.__userId, shotId)
+            return shot
         else:
             return None
 
