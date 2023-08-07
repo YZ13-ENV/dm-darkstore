@@ -8,10 +8,6 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(docs_url=None, redoc_url=None)
 # app = FastAPI()
 
-app.include_router(ShotRouter)
-app.include_router(UserRouter)
-app.include_router(AuthRouter)
-
 origins = [
     'https://design.darkmaterial.space',
     'https://darkmaterial.space',
@@ -20,8 +16,14 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
+
+app.include_router(ShotRouter)
+app.include_router(UserRouter)
+app.include_router(AuthRouter)
 
 @app.get('/')
 def HI_API():
