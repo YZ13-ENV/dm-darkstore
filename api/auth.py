@@ -18,5 +18,5 @@ async def authComplete(email: str):
         return res
     else:
         res = Response(status_code=200)
-        res.set_cookie(key='uid', value=uid, secure=True)
+        res.set_cookie(key='uid', value=uid)
         return res
