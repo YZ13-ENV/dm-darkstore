@@ -1,6 +1,5 @@
-from typing import List, Optional
-from schemas.draft import DraftShotData
-from schemas.shot import ImageBlock, ShotDataForUpload
+from schemas.draft import  DraftToPublish
+from schemas.shot import ShotDataForUpload
 from services.shotService import ShotService
 from fastapi import APIRouter
 router = APIRouter(
@@ -33,9 +32,9 @@ async def updateDraft(userId: str, draftId: str, draft: ShotDataForUpload):
     return isDone
 
 @router.post('/publishDraft')
-async def publishDraft(userId: str, draftId: str, draft: DraftShotData, needFeedBack:bool=True, tags: List[str]=[], thumbnail: Optional[ImageBlock]=None):
+async def publishDraft(userId: str, draftId: str, draft: DraftToPublish):
     service = ShotService(userId=userId)
-    isDone = await service.publishDraft(draftId=draftId, draft=draft, needFeedBack=needFeedBack, tags=tags, thumbnail=thumbnail)
+    isDone = await service.publishDraft(draftId=draftId, draft=draft)
     return isDone
 
 @router.get('/shot')

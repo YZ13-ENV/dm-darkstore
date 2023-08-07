@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 from database.user import getUsersIdList
 from firebase import db
-from schemas.draft import DraftShotData
+from schemas.draft import DraftShotData, DraftToPublish
 from schemas.shot import CommentBlock, ImageBlock, ShotData, ShotDataForUpload
 
 
@@ -25,10 +25,7 @@ async def addShotAsDraft(userId: str, shotId: str, shot: ShotDataForUpload):
         draftRef.set(filledDraft)
         return True
 
-async def publishDraft(
-        userId: str, draftId: str, draft: DraftShotData,
-        needFeedBack: bool, tags: List[str], thumbnail: Optional[ImageBlock]=None
-    ):
+async def publishDraft(userId: str, draftId: str, draft: DraftToPublish):
     draftRef = db.collection('users').document(userId).collection('shots').document(draftId)
     draftSnap = await draftRef.get()
     dictDraft = draft.model_dump()
@@ -42,14 +39,14 @@ async def publishDraft(
         'likes': [],
         'views': [],
         'comments': [],
-        'needFeedback': needFeedBack,
-        'tags': tags,
-        'thumbnail': thumbnail.model_dump()
+        'needFeedBack': dictDraft['needFeedBack'],
+        'tags': dictDraft['tags'],
+        'thumbnail': dictDraft['thumbnail']
 
     }
     if (draftSnap.exists):
         filledShot.update({'createdAt': draftSnap.get('createdAt')})
-        if thumbnail == None:
+        if dictDraft.get('thumbnail') == None:
             filledShot.pop('thumbnail')
             await draftRef.set(filledShot)
         await draftRef.set(filledShot)

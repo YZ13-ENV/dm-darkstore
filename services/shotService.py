@@ -1,7 +1,7 @@
 from typing import List, Optional
 from database.shot import getAllUsersShots, getShots, getDrafts, updateDraft, publishDraft, getShot
-from schemas.draft import DraftShotData
-from schemas.shot import ImageBlock, ShotDataForUpload
+from schemas.draft import DraftToPublish
+from schemas.shot import ShotDataForUpload
 
 class ShotService():
     def __init__(self, userId: Optional[str] ):
@@ -32,8 +32,8 @@ class ShotService():
         isComplete = await updateDraft(userId=self.__userId, draftId=draftId, draft=draft)
         return isComplete
 
-    async def publishDraft(self, draftId: str, draft: DraftShotData, needFeedBack: bool, tags: List[str], thumbnail: Optional[ImageBlock]):
-        isDone = await publishDraft(userId=self.__userId, draftId=draftId, draft=draft, needFeedBack=needFeedBack, tags=tags, thumbnail=thumbnail)
+    async def publishDraft(self, draftId: str, draft: DraftToPublish):
+        isDone = await publishDraft(userId=self.__userId, draftId=draftId, draft=draft)
         return isDone
 
     async def getAllUsersShots(self):

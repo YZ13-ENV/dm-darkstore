@@ -63,7 +63,7 @@ class ShotData(BaseModel):
     likes: List[str]
     views: List[str]
     comments: List[CommentBlock]
-    needFeedback: bool
+    needFeedBack: bool
     tags: List[str]
     thumbnail: Optional[ImageBlock]
 
