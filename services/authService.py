@@ -19,15 +19,15 @@ class AuthService():
         return res
 
 
-    async def returnAuthoredUser(self, res: Response, email: str):
+    async def returnAuthoredUser(self, email: str):
         dotenv.load_dotenv()
         uid = await getUserUIDByEmail(email)
         if uid:
             secret = dotenv.get_key('.env', 'JWT_SECRET')
             if secret:
                 decoded_uid = encode({ 'uid': uid }, secret, algorithm='HS256')
-                res.set_cookie('uid', decoded_uid, secure=True)
-                return res
-            return None
+                return decoded_uid
+            else:
+                return None
         else:
             return None

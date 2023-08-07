@@ -1,5 +1,7 @@
+from typing import Union
 from services.authService import AuthService
 from fastapi import APIRouter, Response
+from fastapi.responses import Response
 
 router = APIRouter(
     prefix='/auth',
@@ -8,9 +10,13 @@ router = APIRouter(
 
 
 @router.post('/authComplete')
-async def authComplete(email: str, res: Response):
+async def authComplete(email: str):
     service = AuthService()
-    res = await service.returnAuthoredUser(res=res, email=email)
-    if not res:
-        return False
-    return True
+    uid: Union[str, None] = await service.returnAuthoredUser(email=email)
+    if not uid:
+        res = Response(status_code=404)
+        return res
+    else:
+        res = Response(status_code=200)
+        res.set_cookie(key='uid', value=uid, secure=True)
+        return res
