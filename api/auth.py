@@ -14,9 +14,9 @@ async def authComplete(email: str):
     service = AuthService()
     uid: Union[str, None] = await service.returnAuthoredUser(email=email)
     if not uid:
-        res = Response(status_code=404)
+        res = Response(status_code=200)
         return res
     else:
         res = Response(status_code=200)
-        res.set_cookie(key='uid', value=uid)
+        res.init_headers({ 'accessToken': uid })
         return res
