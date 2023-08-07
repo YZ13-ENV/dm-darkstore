@@ -52,6 +52,7 @@ class ShotDataForUpload(BaseModel):
     class Config: 
         orm_mode = True
 
+
 class ShotData(BaseModel):
     isDraft: bool
     authorId: str
