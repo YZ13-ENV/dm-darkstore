@@ -10,7 +10,7 @@ class DraftShotData(BaseModel):
     title: str
     rootBlock: ImageBlock
     blocks: List[Union[TextBlock, ShotGridBlock, ImageBlock]]
-    createdAt: int
+    createdAt: Union[int, float]
 
     class Config: 
         orm_mode = True

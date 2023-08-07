@@ -30,7 +30,7 @@ class ShotGridBlock(BaseModel):
 class CommentBlockNoAnswers(BaseModel):
     authorId: str
     text: str
-    createdAt: int
+    createdAt: Union[int, float]
 
     class Config: 
         orm_mode = True
@@ -38,7 +38,7 @@ class CommentBlockNoAnswers(BaseModel):
 class CommentBlock(BaseModel):
     authorId: str
     text: str
-    createdAt: int
+    createdAt: Union[int, float]
     answers: List[CommentBlockNoAnswers]
 
     class Config: 
@@ -59,7 +59,7 @@ class ShotData(BaseModel):
     title: str
     rootBlock: ImageBlock
     blocks: List[Union[TextBlock, ShotGridBlock, ImageBlock]]
-    createdAt: int
+    createdAt: Union[int, float]
     likes: List[str]
     views: List[str]
     comments: List[CommentBlock]
