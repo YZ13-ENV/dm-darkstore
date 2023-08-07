@@ -18,5 +18,5 @@ async def authComplete(email: str):
         return res
     else:
         res = Response(status_code=200)
-        res.init_headers({ 'accessToken': uid })
+        res['accessToken'] = uid
         return res
