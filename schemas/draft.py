@@ -1,6 +1,5 @@
-from ast import List
 from pydantic import BaseModel
-from typing import Union
+from typing import Union, List
 from schemas.shot import ImageBlock, TextBlock, ShotGridBlock
 
 
