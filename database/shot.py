@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 from database.user import getUsersIdList
 from firebase import db
+from asyncio import create_task
 from schemas.draft import DraftShotData, DraftToPublish
 from schemas.shot import CommentBlock, MediaBlock, ShotData, ShotDataForUpload
 
@@ -90,6 +91,8 @@ async def getDrafts(userId: str, asDoc: bool):
                 draftsList.append(draftData)
     return draftsList
 
+
+
 async def getShots(userId: str, asDoc: bool):
     shotsRef = db.collection('users').document(userId).collection('shots')
     shots = await shotsRef.get()
@@ -104,13 +107,27 @@ async def getShots(userId: str, asDoc: bool):
                 shotsList.append(shotData)
     return shotsList
 
+    # shots = db.collection('users').document(userId).collection('shots').list_documents()
+    # shotsList = []
+    # async for shot in shots:
+    #     data = await shot.get()
+    #     shotData: Dict[str, Any] = data.to_dict()
+    #     if shotData.get('isDraft') == False:
+    #         if (asDoc):
+    #             shotData['doc_id'] = data.id
+    #             shotsList.append(shotData)
+    #         if (not asDoc):
+    #             shotsList.append(shotData)
+
+    # return shotsList
+
 def getCreatedDate(el):
     return el['createdAt']
 
 async def getAllUsersShots():
-    userIds = await getUsersIdList()
+    userIds = getUsersIdList()
     shotsList = []
-
+    
     for user in userIds:
         shots = await getShots(user, True)
         for shot in shots:

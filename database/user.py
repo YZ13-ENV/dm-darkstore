@@ -4,15 +4,14 @@ from firebase import db, auth
 from helpers import isShortsDataNotEq
 
 
-async def getUsersIdList():
-    usersRef = db.collection('users')
-    users = await usersRef.get()
+def getUsersIdList():
+    authUsers = auth.list_users().users
     idsList = []
 
-    for user in users:
-        userId: str = user.id
+    for user in authUsers:
+        userId: str = user.uid
         idsList.append(userId)
-
+        
     return idsList
 
 
