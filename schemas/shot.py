@@ -2,7 +2,7 @@ from __future__ import annotations
 from pydantic import BaseModel
 from typing import Union, Optional, List
 
-class ImageBlock(BaseModel):
+class MediaBlock(BaseModel):
     type: str
     link: str
 
@@ -46,8 +46,8 @@ class CommentBlock(BaseModel):
 
 class ShotDataForUpload(BaseModel):
     title: str
-    rootBlock: ImageBlock
-    blocks: List[Union[TextBlock, ShotGridBlock, ImageBlock]]
+    rootBlock: MediaBlock
+    blocks: List[Union[TextBlock, ShotGridBlock, MediaBlock]]
 
     class Config: 
         orm_mode = True
@@ -57,15 +57,15 @@ class ShotData(BaseModel):
     isDraft: bool
     authorId: str
     title: str
-    rootBlock: ImageBlock
-    blocks: List[Union[TextBlock, ShotGridBlock, ImageBlock]]
+    rootBlock: MediaBlock
+    blocks: List[Union[TextBlock, ShotGridBlock, MediaBlock]]
     createdAt: Union[int, float]
     likes: List[str]
     views: List[str]
     comments: List[CommentBlock]
     needFeedBack: bool
     tags: List[str]
-    thumbnail: Optional[ImageBlock]
+    thumbnail: Optional[MediaBlock]
 
     class Config: 
         orm_mode = True

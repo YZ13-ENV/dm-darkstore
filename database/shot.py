@@ -3,14 +3,14 @@ from typing import Any, Dict, List, Optional
 from database.user import getUsersIdList
 from firebase import db
 from schemas.draft import DraftShotData, DraftToPublish
-from schemas.shot import CommentBlock, ImageBlock, ShotData, ShotDataForUpload
+from schemas.shot import CommentBlock, MediaBlock, ShotData, ShotDataForUpload
 
 
 async def addShotAsDraft(userId: str, shotId: str, shot: ShotDataForUpload):
     # post
     draftRef = db.collection('users').document(userId).collection('shots').document(shotId)
     draftSnap = await draftRef.get()
-    dictDraft = shot.dict()
+    dictDraft = shot.model_dump()
     filledDraft = {
         'isDraft': True,
         'authorId': userId,
