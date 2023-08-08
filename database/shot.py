@@ -100,10 +100,12 @@ async def getShots(userId: str, asDoc: bool):
             if (asDoc):
                 shotData['doc_id'] = shot.id
                 shotsList.append(shotData)
-
             if (not asDoc):
                 shotsList.append(shotData)
     return shotsList
+
+def getCreatedDate(el):
+    return el['createdAt']
 
 async def getAllUsersShots():
     userIds = await getUsersIdList()
@@ -113,7 +115,7 @@ async def getAllUsersShots():
         shots = await getShots(user, True)
         for shot in shots:
             shotsList.append(shot)
-    
+    shotsList.sort(key=getCreatedDate, reverse=True)
     return shotsList
 
 async def getShot(userId: str, shotId: str):
