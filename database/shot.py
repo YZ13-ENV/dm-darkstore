@@ -114,7 +114,7 @@ async def getShots(userId: str, asDoc: bool, limit: Optional[int] = None):
         shotsList.sort(key=getCreatedDate, reverse=True)
         return shotsList
     else:
-        shotsRefs = db.collection('users').document(userId).collection('shots').where('isDraft', '==', False).limit(count=limit)
+        shotsRefs = db.collection('users').document(userId).collection('shots').where('isDraft', '==', False).order_by('createdAt', 'DESCENDING').limit(count=limit)
         shots = await shotsRefs.get()
         shotsList = []
 
