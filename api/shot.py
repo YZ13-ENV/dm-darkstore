@@ -21,6 +21,7 @@ async def getOnlyDrafts(userId: str, asDoc: bool=True):
 
 @router.get('/allShots')
 async def getAllShots():
+    # popular default if auth == None | following = default if auth !== None | new
     service = ShotService(userId=None)
     shots = await service.getAllUsersShots()
     return shots
