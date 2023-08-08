@@ -6,6 +6,8 @@ from asyncio import create_task
 from schemas.draft import DraftShotData, DraftToPublish
 from schemas.shot import CommentBlock, MediaBlock, ShotData, ShotDataForUpload
 
+def getCreatedDate(el):
+    return el['createdAt']
 
 async def addShotAsDraft(userId: str, shotId: str, shot: ShotDataForUpload):
     # post
@@ -89,23 +91,44 @@ async def getDrafts(userId: str, asDoc: bool):
                 draftsList.append(draftData)
             else:
                 draftsList.append(draftData)
+
+    draftsList.sort(key=getCreatedDate, reverse=True)
     return draftsList
 
 
 
-async def getShots(userId: str, asDoc: bool):
-    shotsRef = db.collection('users').document(userId).collection('shots')
-    shots = await shotsRef.get()
-    shotsList = []
-    for shot in shots:
-        shotData: Dict[str, Any] = shot.to_dict()
-        if shotData.get('isDraft') == False:
-            if (asDoc):
-                shotData['doc_id'] = shot.id
-                shotsList.append(shotData)
-            if (not asDoc):
-                shotsList.append(shotData)
-    return shotsList
+async def getShots(userId: str, asDoc: bool, limit: Optional[int] = None):
+    if not limit:
+        shotsRef = db.collection('users').document(userId).collection('shots')
+        shots = await shotsRef.get()
+        shotsList = []
+        for shot in shots:
+            shotData: Dict[str, Any] = shot.to_dict()
+            if shotData.get('isDraft') == False:
+                if (asDoc):
+                    shotData['doc_id'] = shot.id
+                    shotsList.append(shotData)
+                if (not asDoc):
+                    shotsList.append(shotData)
+
+        shotsList.sort(key=getCreatedDate, reverse=True)
+        return shotsList
+    else:
+        shotsRefs = db.collection('users').limit(count=limit) #.document(userId).collection('shots')
+        shots = shotsRefs.get()
+        shotsList = []
+
+        for shot in shots:
+            shotData: Dict[str, Any] = shot.to_dict()
+            if shotData.get('isDraft') == False:
+                if (asDoc):
+                    shotData['doc_id'] = shot.id
+                    shotsList.append(shotData)
+                if (not asDoc):
+                    shotsList.append(shotData)
+        
+        shotsList.sort(key=getCreatedDate, reverse=True)
+        return shotsList
 
     # shots = db.collection('users').document(userId).collection('shots').list_documents()
     # shotsList = []
@@ -121,8 +144,7 @@ async def getShots(userId: str, asDoc: bool):
 
     # return shotsList
 
-def getCreatedDate(el):
-    return el['createdAt']
+
 
 async def getAllUsersShots():
     userIds = getUsersIdList()
