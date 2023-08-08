@@ -7,9 +7,9 @@ class ShotService():
     def __init__(self, userId: Optional[str] ):
         self.__userId = userId
 
-    async def getShots(self, asDoc: bool):
+    async def getShots(self, asDoc: bool, limit: Optional[int]=None):
         if (self.__userId):
-            shots = await getShots(self.__userId, asDoc)
+            shots = await getShots(self.__userId, asDoc=asDoc, limit=limit)
             return shots
         else:
             return None
