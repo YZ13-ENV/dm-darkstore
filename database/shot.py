@@ -114,7 +114,7 @@ async def getShots(userId: str, asDoc: bool, limit: Optional[int] = None):
         shotsList.sort(key=getCreatedDate, reverse=True)
         return shotsList
     else:
-        shotsRefs = db.collection('users').limit(count=limit) #.document(userId).collection('shots')
+        shotsRefs = db.collection('users').document(userId).collection('shots').limit(count=limit)
         shots = shotsRefs.get()
         shotsList = []
 
