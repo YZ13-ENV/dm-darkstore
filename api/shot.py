@@ -33,6 +33,18 @@ async def updateShot(userId: str, shotId: str, shot: ShotData):
     isDone = await service.updateShot(shotId=shotId, shot=shot)
     return isDone
 
+@router.patch('/addOrRemoveLikes')
+async def addOrRemoveLikes(shotAuthorId: str, shotId: str, uid: str):
+    service = ShotService(userId=shotAuthorId)
+    result = await service.addOrRemoveLikes(shotId=shotId, uid=uid)
+    return result
+
+@router.patch('/addView')
+async def addViews(shotAuthorId: str, shotId: str, uid: str):
+    service = ShotService(userId=shotAuthorId)
+    result = await service.addView(shotId=shotId, uid=uid)
+    return result
+
 @router.post('/updateDraft')
 async def updateDraft(userId: str, draftId: str, draft: ShotDataForUpload):
     service = ShotService(userId=userId)

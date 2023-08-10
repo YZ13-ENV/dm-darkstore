@@ -2,9 +2,8 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 from database.user import getUsersIdList
 from firebase import db
-from asyncio import create_task
-from schemas.draft import DraftShotData, DraftToPublish
-from schemas.shot import CommentBlock, MediaBlock, ShotData, ShotDataForUpload
+from schemas.draft import DraftToPublish
+from schemas.shot import ShotData, ShotDataForUpload
 
 def getCreatedDate(el):
     return el['createdAt']
@@ -91,6 +90,37 @@ async def updateDraft(userId: str, draftId: str, draft: ShotDataForUpload):
         await draftRef.update(filledDraft)
         return True
     
+async def addOrRemoveLike(shotAuthorId: str, shotId: str, uid: str):
+    shotRef = db.collection('users').document(shotAuthorId).collection('shots').document(shotId)
+    shotSnap = await shotRef.get()
+    shotDict: Dict[str, Any] = shotSnap.to_dict()
+    likes: List[str] = shotDict.get('likes')
+    if (uid in likes):
+        filteredLikes = []
+        for likerUID in likes:
+            if likerUID != uid:
+                filteredLikes.append(likerUID)
+        shotDict.update({'likes': filteredLikes})
+        await shotRef.update(shotDict)
+        return 'removed'
+
+    else:
+        likes.append(uid)
+        shotDict.update({'likes': likes})
+        await shotRef.update(shotDict)
+        return 'added'
+
+async def addView(shotAuthorId: str, shotId: str, uid: str):
+    shotRef = db.collection('users').document(shotAuthorId).collection('shots').document(shotId)
+    shotSnap = await shotRef.get()
+    shotDict: Dict[str, Any] = shotSnap.to_dict()
+    views: List[str] = shotDict.get('views')
+    views.append(uid)
+    shotDict.update({'views': views})
+    await shotRef.update(shotDict)
+    return 'added'
+
+
 async def getDrafts(userId: str, asDoc: bool):
     draftRef = db.collection('users').document(userId).collection('shots')
     drafts = await draftRef.get()
