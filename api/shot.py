@@ -3,6 +3,7 @@ from schemas.draft import  DraftToPublish
 from schemas.shot import ShotData, ShotDataForUpload
 from services.shotService import ShotService
 from fastapi import APIRouter
+from fastapi_cache.decorator import cache
 router = APIRouter(
     prefix='/shots',
     tags=['Работы']
@@ -21,6 +22,7 @@ async def getOnlyDrafts(userId: str, asDoc: bool=True):
     return drafts
 
 @router.get('/allShots')
+@cache(expire=300)
 async def getAllShots():
     # popular default if auth == None | following = default if auth !== None | new
     service = ShotService(userId=None)

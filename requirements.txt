@@ -1,4 +1,6 @@
 fastapi[all]
+aioredis
+fastapi_cache2[redis]
 uvicorn[standard]
 gunicorn[standard]
 firebase-admin
