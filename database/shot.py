@@ -57,6 +57,18 @@ async def publishDraft(userId: str, draftId: str, draft: DraftToPublish):
     else:
         return False
 
+async def updateShot(userId: str, shotId: str, shot: ShotData):
+    shotRef = db.collection('users').document(userId).collection('shots').document(shotId)
+    dictShot = shot.model_dump()
+    if (dictShot.get('doc_id') != None):
+        dictShot.pop('doc_id')
+        await shotRef.update(dictShot)
+        return True
+    else:
+        await shotRef.update(dictShot)
+        return True
+
+
 async def updateDraft(userId: str, draftId: str, draft: ShotDataForUpload):
     # patch
     draftRef = db.collection('users').document(userId).collection('shots').document(draftId)

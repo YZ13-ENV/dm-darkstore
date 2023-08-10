@@ -1,6 +1,6 @@
 from typing import Optional
 from schemas.draft import  DraftToPublish
-from schemas.shot import ShotDataForUpload
+from schemas.shot import ShotData, ShotDataForUpload
 from services.shotService import ShotService
 from fastapi import APIRouter
 router = APIRouter(
@@ -26,6 +26,12 @@ async def getAllShots():
     service = ShotService(userId=None)
     shots = await service.getAllUsersShots()
     return shots
+
+@router.post('/updateShot')
+async def updateDraft(userId: str, shotId: str, shot: ShotData):
+    service = ShotService(userId=userId)
+    isDone = await service.updateShot(shotId=shotId, shot=shot)
+    return isDone
 
 @router.post('/updateDraft')
 async def updateDraft(userId: str, draftId: str, draft: ShotDataForUpload):
