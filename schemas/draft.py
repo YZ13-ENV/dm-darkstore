@@ -14,7 +14,6 @@ class DraftShotData(BaseModel):
     class Config: 
         orm_mode = True
 
-
 class DraftToPublish(BaseModel):
     isDraft: bool
     authorId: str
@@ -23,7 +22,7 @@ class DraftToPublish(BaseModel):
     blocks: List[Union[TextBlock, ShotGridBlock, MediaBlock]]
     createdAt: Union[int, float]
     tags: List[str]
-    needFeedBack: bool
+    needFeedback: bool
     thumbnail: Optional[MediaBlock]
 
     class Config: 

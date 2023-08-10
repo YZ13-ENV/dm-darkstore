@@ -28,7 +28,7 @@ async def getAllShots():
     return shots
 
 @router.post('/updateShot')
-async def updateDraft(userId: str, shotId: str, shot: ShotData):
+async def updateShot(userId: str, shotId: str, shot: ShotData):
     service = ShotService(userId=userId)
     isDone = await service.updateShot(shotId=shotId, shot=shot)
     return isDone

@@ -29,11 +29,11 @@ class ShotService():
             return None
     
     async def updateShot(self, shotId: str, shot: ShotData):
-        try:
+        # try:
             isComplete = await updateShot(self.__userId, shotId, shot)
             return isComplete
-        except:
-            return False
+        # except: 
+            # return False
 
     async def updateDraft(self, draftId: str, draft: ShotDataForUpload):
         isComplete = await updateDraft(userId=self.__userId, draftId=draftId, draft=draft)
