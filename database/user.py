@@ -42,9 +42,9 @@ async def setShortDataFromDB(userId: str):
     if record:
         short = {
             'short': {
-                'email': record._data['email'],
-                'displayName': record._data['displayName'],
-                'photoUrl': record._data['photoUrl'],
+                'email': record._data.get('email'),
+                'displayName': record._data.get('displayName'),
+                'photoUrl': record._data.get('photoUrl'),
             }
         }
         userRef = db.collection('users').document(userId)
@@ -57,9 +57,9 @@ async def getShortDataFromRecord(userId: str):
     if record:
         short = {
             'short': {
-                'email': record._data['email'],
-                'displayName': record._data['displayName'],
-                'photoUrl': record._data['photoUrl'],
+                'email': record._data.get('email'),
+                'displayName': record._data.get('displayName'),
+                'photoUrl': record._data.get('photoUrl'),
             }
         }
         return short
@@ -72,9 +72,9 @@ async def getShortDataByEmail(email: str):
         if record:
             short = {
                 'short': {
-                    'email': record._data['email'],
-                    'displayName': record._data['displayName'],
-                    'photoUrl': record._data['photoUrl'],
+                    'email': record._data.get('email'),
+                    'displayName': record._data.get('displayName'),
+                    'photoUrl': record._data.get('photoUrl'),
                 }
             }
             return short
@@ -85,7 +85,7 @@ async def getUserUIDByEmail(email: str):
     try:
         record = auth.get_user_by_email(email=email)
         if record:
-            return record.uid
+            return record._data.get('uid')
     except:
         return None
 
@@ -101,9 +101,9 @@ async def isLocalAndDBShortEq(userId: str):
     record = await getUserRecord(userId=userId)
     if (record and shortData):
         shortFromRecord = {
-            'email': record._data['email'],
-            'displayName': record._data['displayName'],
-            'photoUrl': record._data['photoUrl'],
+            'email': record._data.get('email'),
+            'displayName': record._data.get('displayName'),
+            'photoUrl': record._data.get('photoUrl'),
         }
         isEq = isShortsDataNotEq(shortFromRecord, shortData)
         return isEq
