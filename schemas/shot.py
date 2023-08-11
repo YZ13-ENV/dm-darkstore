@@ -2,6 +2,13 @@ from __future__ import annotations
 from pydantic import BaseModel
 from typing import Union, Optional, List
 
+class Thumbnail(BaseModel):
+    width: int
+    height: int
+    link: str
+
+
+
 class MediaBlock(BaseModel):
     type: str
     link: str
@@ -52,6 +59,10 @@ class ShotDataForUpload(BaseModel):
     class Config: 
         orm_mode = True
 
+class ThumbnailThree(BaseModel):
+    desktop: Thumbnail
+    mobile: Thumbnail
+    thumbnail: Thumbnail
 
 class ShotData(BaseModel):
     isDraft: bool
@@ -65,7 +76,7 @@ class ShotData(BaseModel):
     comments: List[CommentBlock]
     needFeedback: bool
     tags: List[str]
-    thumbnail: Optional[MediaBlock]
+    thumbnail: Optional[ThumbnailThree]
 
     class Config: 
         orm_mode = True
