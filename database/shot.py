@@ -44,7 +44,7 @@ async def publishDraft(userId: str, draftId: str, draft: DraftToPublish):
         'likes': [],
         'views': [],
         'comments': [],
-        'needFeedBack': dictDraft['needFeedBack'],
+        'needFeedback': dictDraft['needFeedback'],
         'tags': dictDraft['tags'],
         'thumbnail': dictDraft['thumbnail']
 

@@ -8,8 +8,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
-app = FastAPI(docs_url=None, redoc_url=None)
-# app = FastAPI()
+# app = FastAPI(docs_url=None, redoc_url=None)
+app = FastAPI()
 
 
 origins = [
@@ -32,7 +32,7 @@ app.include_router(AuthRouter)
 @app.on_event('startup')
 async def startup_event():
     load_dotenv()
-    print(f"redis://{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}")
+    # print(f"redis://{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}")
     redis = aioredis.from_url(f"redis://{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}", encoding='utf-8', decode_responses=True)
     FastAPICache.init(RedisBackend(redis=redis), prefix='fastapi-cache')
 
