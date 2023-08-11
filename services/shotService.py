@@ -56,6 +56,6 @@ class ShotService():
         isDone = await publishDraft(userId=self.__userId, draftId=draftId, draft=draft)
         return isDone
 
-    async def getAllUsersShots(self):
-        shots = await getAllUsersShots()
+    async def getAllUsersShots(self, order: str):
+        shots = await getAllUsersShots(order=order)
         return shots

@@ -8,6 +8,9 @@ from schemas.shot import ShotData, ShotDataForUpload
 def getCreatedDate(el):
     return el['createdAt']
 
+def getViews(el):
+    return el['views']
+
 async def addShotAsDraft(userId: str, shotId: str, shot: ShotDataForUpload):
     # post
     draftRef = db.collection('users').document(userId).collection('shots').document(shotId)
@@ -187,8 +190,8 @@ async def getShots(userId: str, asDoc: bool, limit: Optional[int] = None):
     # return shotsList
 
 
-
-async def getAllUsersShots():
+# popular <-> following <-> new
+async def getAllUsersShots(order: str):
     userIds = getUsersIdList()
     shotsList = []
     
@@ -196,7 +199,13 @@ async def getAllUsersShots():
         shots = await getShots(user, True)
         for shot in shots:
             shotsList.append(shot)
-    shotsList.sort(key=getCreatedDate, reverse=True)
+
+    if (order == 'popular'):
+        shotsList.sort(key=getViews, reverse=True)
+    elif (order == 'new'):
+        shotsList.sort(key=getCreatedDate, reverse=True)
+        return shotsList
+    
     return shotsList
 
 async def getShot(userId: str, shotId: str):

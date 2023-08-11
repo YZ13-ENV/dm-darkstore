@@ -10,24 +10,34 @@ router = APIRouter(
 )
 
 @router.get('/onlyShots')
+@cache(expire=300)
 async def getOnlyShots(userId: str, asDoc: bool=True, limit: Optional[int]=None):
     service = ShotService(userId=userId)
     shots = await service.getShots(asDoc=asDoc, limit=limit)
     return shots
 
 @router.get('/onlyDrafts')
+@cache(expire=300)
 async def getOnlyDrafts(userId: str, asDoc: bool=True):
     service = ShotService(userId=userId)
     drafts = await service.getDrafts(asDoc=asDoc)
     return drafts
 
-@router.get('/allShots')
+# @router.get('/allShots')
+# @cache(expire=300)
+# async def getAllShots():
+#     # popular default if auth == None | following = default if auth !== None | new
+#     service = ShotService(userId=None)
+#     shots = await service.getAllUsersShots(order=None)
+#     return shots
+
+@router.get('/allShots/{order}')
 @cache(expire=300)
-async def getAllShots():
-    # popular default if auth == None | following = default if auth !== None | new
+async def getPopularFromAllShots(order: str):
     service = ShotService(userId=None)
-    shots = await service.getAllUsersShots()
+    shots = await service.getAllUsersShots(order=order)
     return shots
+
 
 @router.post('/updateShot')
 async def updateShot(userId: str, shotId: str, shot: ShotData):
@@ -60,6 +70,7 @@ async def publishDraft(userId: str, draftId: str, draft: DraftToPublish):
     return isDone
 
 @router.get('/shot')
+@cache(expire=60)
 async def getShot(userId: str, shotId: str):
     service = ShotService(userId=userId)
     shot = await service.getShot(shotId=shotId)

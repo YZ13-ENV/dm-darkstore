@@ -6,7 +6,7 @@ from api.user import router as UserRouter
 from api.auth import router as AuthRouter
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import get_key, load_dotenv
+from dotenv import load_dotenv
 import os
 app = FastAPI(docs_url=None, redoc_url=None)
 # app = FastAPI()
