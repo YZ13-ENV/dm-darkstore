@@ -49,25 +49,24 @@ async def uploadThumbnail(file: UploadFile, uid: str, draftId: str):
 
 @router.post('/uploadThumbnail')
 async def uploadThumbnail(file: UploadFile, uid: str, draftId: str):
-    images = {}
-    for size in sizes:
-
-        size_defined = size.get('width'), size.get('height')
+    try:
+        size_defined = 320, 240
         image = Image.open(fp=file.file, mode='r')
         image.thumbnail(size_defined)
-        db_link = f"users/{uid}/{draftId}/{size.get('width')}x{size.get('height')}{file.filename}"
-        local_link = f"images/{size.get('width')}x{size.get('height')}{file.filename}"
+        db_link = f"users/{uid}/{draftId}/{size_defined[0]}x{size_defined[1]}{file.filename}"
+        local_link = f"images/{size_defined[0]}x{size_defined[1]}{file.filename}"
         image.save(local_link)
 
         imageRef = {
-            "width": size.get('width'),
-            "height": size.get('height'),
+            "width": size_defined[0],
+            "height": size_defined[1],
             'link': db_link
         }
 
-        images.update({ getShotImageType(size.get('width')): imageRef })
         with open(local_link, 'rb') as saved_file:
             storage.blob(db_link).upload_from_file(saved_file)
             saved_file.close()
         os.remove(local_link)
-    return images
+        return imageRef
+    except:
+        return None
