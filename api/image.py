@@ -33,7 +33,7 @@ def getShotImageType(width: int):
         return 'thumbnail'
 
 @router.get('/file')
-@cache(expire=7200)
+@cache(expire=5400)
 async def getFileLink(link: str):
     url = storage.blob(link).generate_signed_url(expiration=timedelta(hours=2))
     return url
