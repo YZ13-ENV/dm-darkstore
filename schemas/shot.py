@@ -7,8 +7,6 @@ class Thumbnail(BaseModel):
     height: int
     link: str
 
-
-
 class MediaBlock(BaseModel):
     type: str
     link: str
@@ -76,7 +74,7 @@ class ShotData(BaseModel):
     comments: List[CommentBlock]
     needFeedback: bool
     tags: List[str]
-    thumbnail: Optional[ThumbnailThree]
+    thumbnail: Optional[Thumbnail]
 
     class Config: 
         orm_mode = True

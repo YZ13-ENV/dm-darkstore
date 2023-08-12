@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional, Union, List
-from schemas.shot import MediaBlock, TextBlock, ShotGridBlock
-
+from schemas.shot import MediaBlock, TextBlock, ShotGridBlock, Thumbnail
 
 class DraftShotData(BaseModel):
     isDraft: bool
@@ -23,7 +22,7 @@ class DraftToPublish(BaseModel):
     createdAt: Union[int, float]
     tags: List[str]
     needFeedback: bool
-    thumbnail: Optional[MediaBlock]
+    thumbnail: Optional[Thumbnail]
 
     class Config: 
         orm_mode = True
