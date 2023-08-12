@@ -38,6 +38,15 @@ async def getFileLink(link: str):
     url = storage.blob(link).generate_signed_url(expiration=timedelta(hours=2))
     return url
 
+@router.post('/uploadMediaInDraft')
+async def uploadThumbnail(file: UploadFile, uid: str, draftId: str):
+    try:
+        link = f"users/{uid}/{draftId}/{file.filename}"
+        storage.blob(link).upload_from_file(file.file)
+        return True
+    except:
+        return False
+
 @router.post('/uploadThumbnail')
 async def uploadThumbnail(file: UploadFile, uid: str, draftId: str):
     images = {}
