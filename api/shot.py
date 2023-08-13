@@ -23,18 +23,10 @@ async def getOnlyDrafts(userId: str, asDoc: bool=True):
     drafts = await service.getDrafts(asDoc=asDoc)
     return drafts
 
-# @router.get('/allShots')
-# @cache(expire=300)
-# async def getAllShots():
-#     # popular default if auth == None | following = default if auth !== None | new
-#     service = ShotService(userId=None)
-#     shots = await service.getAllUsersShots(order=None)
-#     return shots
-
 @router.get('/allShots/{order}')
 @cache(expire=60)
-async def getPopularFromAllShots(order: str):
-    service = ShotService(userId=None)
+async def getPopularFromAllShots(order: Optional[str]='popular', userId: Optional[str]=None):
+    service = ShotService(userId=userId)
     shots = await service.getAllUsersShots(order=order)
     return shots
 

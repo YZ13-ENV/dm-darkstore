@@ -57,5 +57,5 @@ class ShotService():
         return isDone
 
     async def getAllUsersShots(self, order: str):
-        shots = await getAllUsersShots(order=order)
+        shots = await getAllUsersShots(order=order, userId=self.__userId)
         return shots

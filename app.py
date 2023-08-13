@@ -35,7 +35,6 @@ app.include_router(ImageRouter)
 @app.on_event('startup')
 async def startup_event():
     load_dotenv()
-    # print(f"redis://{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}")
     redis = aioredis.from_url(f"redis://{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}", encoding='utf-8', decode_responses=True)
     FastAPICache.init(RedisBackend(redis=redis), prefix='fastapi-cache')
 

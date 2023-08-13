@@ -1,6 +1,6 @@
 from typing import Dict, Any
 from firebase import auth
-from database.user import getShortDataByEmail, updateUser, getShortDataFromRecord
+from database.user import getShortDataByEmail, isInFollowList, startFollow, stopFollow, updateUser, getShortDataFromRecord
 
 class UserService():
     def __init__(self, userId: str):
@@ -31,3 +31,24 @@ class UserService():
             return isComplete
         
         return False
+    
+    async def startFollow(self, followId):
+        if (self.__userId):
+            res = await startFollow(self.__userId, followId)
+            return res
+        else:
+            return None
+        
+    async def stopFollow(self, followId):
+        if (self.__userId):
+            res = await stopFollow(self.__userId, followId)
+            return res
+        else:
+            return None
+        
+    async def isInFollowList(self, followId: str):
+        if (self.__userId):
+            res = await isInFollowList(self.__userId, followId)
+            return res
+        else:
+            return None

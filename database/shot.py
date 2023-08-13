@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-from database.user import getUsersIdList
+from database.user import getFollows, getUsersIdList
 from firebase import db
 from schemas.draft import DraftToPublish
 from schemas.shot import ShotData, ShotDataForUpload
@@ -9,7 +9,7 @@ def getCreatedDate(el):
     return el['createdAt']
 
 def getViews(el):
-    return el['views']
+    return len(el['views'])
 
 async def addShotAsDraft(userId: str, shotId: str, shot: ShotDataForUpload):
     # post
@@ -191,7 +191,7 @@ async def getShots(userId: str, asDoc: bool, limit: Optional[int] = None):
 
 
 # popular <-> following <-> new
-async def getAllUsersShots(order: str):
+async def getAllUsersShots(order: str='popular', userId: Optional[str]=None):
     userIds = getUsersIdList()
     shotsList = []
     
@@ -202,6 +202,16 @@ async def getAllUsersShots(order: str):
 
     if (order == 'popular'):
         shotsList.sort(key=getViews, reverse=True)
+        return shotsList
+    if (order == 'following' and userId):
+        followingShot = []
+        follows = await getFollows(userId=userId)
+        for follow in follows:
+            shots = await getShots(userId=follow, asDoc=True)
+            for shot in shots:
+                followingShot.append(shot)
+        followingShot.sort(key=getCreatedDate, reverse=True)
+        return followingShot
     elif (order == 'new'):
         shotsList.sort(key=getCreatedDate, reverse=True)
         return shotsList

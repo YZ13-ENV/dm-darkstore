@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from firebase import db, auth
 # from schemas.user import UserShortData
 from helpers import isShortsDataNotEq
@@ -14,6 +14,62 @@ def getUsersIdList():
         
     return idsList
 
+async def isInFollowList(userId: str, followId: str):
+    userRef = db.collection('users').document(userId)
+    user = await userRef.get()
+    userDict = user.to_dict()
+    if not userDict.get('follows'):
+        return False
+    else: 
+        follows = userDict.get('follows')
+        if followId in follows:
+            return True
+        else:
+            return False
+        
+async def getFollows(userId: str):
+    userRef = db.collection('users').document(userId)
+    user = await userRef.get()
+    userDict = user.to_dict()
+    if not userDict.get('follows'):
+        return []
+    else: 
+        return userDict.get('follows')
+    
+async def stopFollow(userId: str, followId: str):
+    userRef = db.collection('users').document(userId)
+    user = await userRef.get()
+    userDict = user.to_dict()
+    if not userDict.get('follows'):
+        return True
+    else:
+        follows: List[str] = userDict.get('follows')
+        filteredFollows = list(filter(lambda uid: uid != followId, follows))
+        field_updates = {
+            'follows': filteredFollows
+        }
+        await userRef.update(field_updates=field_updates)
+        return True
+
+async def startFollow(userId: str, followId: str):
+    userRef = db.collection('users').document(userId)
+    user = await userRef.get()
+    userDict = user.to_dict()
+    if not userDict.get('follows'):
+        follows: List[str] = [followId]
+        field_updates = {
+            'follows': follows
+        }
+        await userRef.update(field_updates=field_updates)
+        return True
+    else:
+        follows: List[str] = userDict.get('follows')
+        follows.append(followId)
+        field_updates = {
+            'follows': follows
+        }
+        await userRef.update(field_updates=field_updates)
+        return True
 
 async def updateUser(userId: str, displayName: Optional[str], photoUrl: Optional[str]):
     if (displayName and not photoUrl):
