@@ -8,6 +8,7 @@ class DraftShotData(BaseModel):
     title: str
     rootBlock: MediaBlock
     blocks: List[Union[TextBlock, ShotGridBlock, MediaBlock]]
+    thumbnail: Optional[Thumbnail]
     createdAt: Union[int, float]
 
     class Config: 

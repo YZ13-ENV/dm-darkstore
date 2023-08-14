@@ -1,5 +1,4 @@
 from datetime import timedelta
-from io import BytesIO
 from fastapi import APIRouter, UploadFile
 from PIL import Image
 from firebase import storage
@@ -40,12 +39,16 @@ async def getFileLink(link: str):
 
 @router.post('/uploadMediaInDraft')
 async def uploadThumbnail(file: UploadFile, uid: str, draftId: str):
-    try:
-        link = f"users/{uid}/{draftId}/{file.filename}"
-        storage.blob(link).upload_from_file(file.file)
-        return True
-    except:
-        return False
+    image = Image.open(fp=file.file, mode='r')
+    local_link = f"images/{file.filename}"
+    link = f"users/{uid}/{draftId}/{file.filename}"
+    image.save(fp=local_link, optimize=True)
+
+    with open(local_link, 'rb') as saved_file:
+        storage.blob(link).upload_from_file(saved_file)
+        saved_file.close()
+    os.remove(local_link)
+    return link
 
 @router.post('/uploadThumbnail')
 async def uploadThumbnail(file: UploadFile, uid: str, draftId: str):
