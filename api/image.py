@@ -18,8 +18,8 @@ sizes = [
         "height": 480
     },
     {
-        "width": 320,
-        "height": 240 
+        "width": 360,
+        "height": 280 
     }
 ]
 
@@ -30,6 +30,17 @@ def getShotImageType(width: int):
         return 'mobile'
     else:
         return 'thumbnail'
+def isGifResampling(filename: str):
+    if '.gif' in filename:
+        return Image.BOX
+    else:
+        return Image.BILINEAR
+
+def isGif(filename: str):
+    if '.gif' in filename:
+        return True
+    else:
+        return False
 
 @router.get('/file')
 @cache(expire=120)
@@ -38,38 +49,54 @@ async def getFileLink(link: str):
     return url
 
 @router.post('/uploadMediaInDraft')
-async def uploadThumbnail(file: UploadFile, uid: str, draftId: str):
-    image = Image.open(fp=file.file, mode='r')
-    local_link = f"images/{file.filename}"
-    link = f"users/{uid}/{draftId}/{file.filename}"
-    image.save(fp=local_link, optimize=True)
+async def uploadMedia(file: UploadFile, uid: str, draftId: str):
+    if '.mp4' in file.filename:
+        link = f"users/{uid}/{draftId}/{file.filename}"
+        storage.blob(link).upload_from_file(file.file)
+        return link
+    else:
+        image = Image.open(fp=file.file, mode='r')
+        local_link = f"images/{file.filename}"
+        link = f"users/{uid}/{draftId}/{file.filename}"
+        image.save(fp=local_link, save_all=isGif(file.filename))
 
-    with open(local_link, 'rb') as saved_file:
-        storage.blob(link).upload_from_file(saved_file)
-        saved_file.close()
-    os.remove(local_link)
-    return link
+        with open(local_link, 'rb') as saved_file:
+            storage.blob(link).upload_from_file(saved_file)
+            saved_file.close()
+        os.remove(local_link)
+        return link
 
 @router.post('/uploadThumbnail')
 async def uploadThumbnail(file: UploadFile, uid: str, draftId: str):
-    try:
-        size_defined = 320, 240
-        image = Image.open(fp=file.file, mode='r')
-        image.thumbnail(size_defined)
-        db_link = f"users/{uid}/{draftId}/{size_defined[0]}x{size_defined[1]}{file.filename}"
-        local_link = f"images/{size_defined[0]}x{size_defined[1]}{file.filename}"
-        image.save(local_link)
-
-        imageRef = {
-            "width": size_defined[0],
-            "height": size_defined[1],
-            'link': db_link
-        }
-
-        with open(local_link, 'rb') as saved_file:
-            storage.blob(db_link).upload_from_file(saved_file)
-            saved_file.close()
-        os.remove(local_link)
-        return imageRef
-    except:
+    size_defined = 720, 405
+    if '.mp4' in file.filename:
         return None
+    else:
+        try:
+            print(isGifResampling(file.filename), isGif(file.filename))
+            if isGif(file.filename):
+                image = Image.open(fp=file.file, mode='r')
+                image.resize(size=size_defined, resample=isGifResampling(file.filename))
+                db_link = f"users/{uid}/{draftId}/{size_defined[0]}x{size_defined[1]}{file.filename}"
+                local_link = f"images/{size_defined[0]}x{size_defined[1]}{file.filename}"
+                image.save(local_link, save_all=isGif(file.filename))
+            else:
+                image = Image.open(fp=file.file, mode='r')
+                image.thumbnail(size=size_defined, resample=isGifResampling(file.filename))
+                db_link = f"users/{uid}/{draftId}/{size_defined[0]}x{size_defined[1]}{file.filename}"
+                local_link = f"images/{size_defined[0]}x{size_defined[1]}{file.filename}"
+                image.save(local_link, save_all=isGif(file.filename))
+
+            imageRef = {
+                "width": size_defined[0],
+                "height": size_defined[1],
+                'link': db_link
+            }
+
+            with open(local_link, 'rb') as saved_file:
+                storage.blob(db_link).upload_from_file(saved_file)
+                saved_file.close()
+            os.remove(local_link)
+            return imageRef
+        except:
+            return None

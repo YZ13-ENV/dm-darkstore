@@ -53,6 +53,7 @@ class ShotDataForUpload(BaseModel):
     title: str
     rootBlock: MediaBlock
     blocks: List[Union[TextBlock, ShotGridBlock, MediaBlock]]
+    thumbnail: Optional[Thumbnail]
 
     class Config: 
         orm_mode = True

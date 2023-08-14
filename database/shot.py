@@ -35,19 +35,13 @@ async def publishDraft(userId: str, draftId: str, draft: DraftToPublish):
     draftSnap = await draftRef.get()
     dictDraft = draft.model_dump()
     filledShot = {
+        **dictDraft,
         'isDraft': False,
         'authorId': userId,
-        'title': dictDraft.get('title'),
-        'rootBlock': dictDraft.get('rootBlock'),
-        'blocks': dictDraft.get('blocks'),
         'createdAt': datetime.today().timestamp(),
         'likes': [],
         'views': [],
         'comments': [],
-        'needFeedback': dictDraft['needFeedback'],
-        'tags': dictDraft['tags'],
-        'thumbnail': dictDraft['thumbnail']
-
     }
     if (draftSnap.exists):
         filledShot.update({'createdAt': draftSnap.get('createdAt')})
@@ -77,12 +71,10 @@ async def updateDraft(userId: str, draftId: str, draft: ShotDataForUpload):
     draftSnap = await draftRef.get()
     dictDraft = draft.model_dump()
     filledDraft = {
+        **dictDraft,
         'isDraft': True,
         'authorId': userId,
-        'title': dictDraft['title'],
-        'rootBlock': dictDraft['rootBlock'],
-        'blocks': dictDraft['blocks'],
-        'createdAt': datetime.today().timestamp()
+        'createdAt': datetime.today().timestamp(),
     }
     if (not draftSnap.exists):
         await draftRef.set(filledDraft)
