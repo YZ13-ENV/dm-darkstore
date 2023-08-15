@@ -31,7 +31,7 @@ async def getPopularFromAllShots(order: Optional[str]='popular', userId: Optiona
     shots = await service.getAllUsersShots(order=order)
     return shots
 
-@router.get('/v2/allShots')
+@router.get('/v2/allShots/{order}')
 @cache(expire=60)
 async def getPopularFromAllShots(order: Optional[str]='popular', userId: Optional[str]=None):
     service = ShotService(userId=userId)
