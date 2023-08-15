@@ -181,6 +181,32 @@ async def getShots(userId: str, asDoc: bool, limit: Optional[int] = None):
 
     # return shotsList
 
+async def getUpgradedUsersShots(order: str='popular', userId: Optional[str]=None):
+    group = db.collection_group('shots')
+    shotsSnaps = await group.where('isDraft', '==', False).get()
+    shotsList = []
+    for shot in shotsSnaps:
+        shotDict = shot.to_dict()
+        shotDict.update({ 'doc_id': shot.id })
+        shotsList.append(shot.to_dict())
+
+    if (order == 'popular'):
+        shotsList.sort(key=getViews, reverse=True)
+        return shotsList
+    if (order == 'following' and userId):
+        followingShot = []
+        follows = await getFollows(userId=userId)
+        for follow in follows:
+            shots = await getShots(userId=follow, asDoc=True)
+            for shot in shots:
+                followingShot.append(shot)
+        followingShot.sort(key=getCreatedDate, reverse=True)
+        return followingShot
+    elif (order == 'new'):
+        shotsList.sort(key=getCreatedDate, reverse=True)
+        return shotsList
+    
+    return shotsList
 
 # popular <-> following <-> new
 async def getAllUsersShots(order: str='popular', userId: Optional[str]=None):

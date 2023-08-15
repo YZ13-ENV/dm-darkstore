@@ -4,6 +4,7 @@ from schemas.shot import ShotData, ShotDataForUpload
 from services.shotService import ShotService
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
+from firebase import db
 router = APIRouter(
     prefix='/shots',
     tags=['Работы']
@@ -30,6 +31,12 @@ async def getPopularFromAllShots(order: Optional[str]='popular', userId: Optiona
     shots = await service.getAllUsersShots(order=order)
     return shots
 
+@router.get('/v2/allShots')
+@cache(expire=60)
+async def getPopularFromAllShots(order: Optional[str]='popular', userId: Optional[str]=None):
+    service = ShotService(userId=userId)
+    shots = await service.getAllUpgradedUsersShots(order=order)
+    return shots
 
 @router.post('/updateShot')
 async def updateShot(userId: str, shotId: str, shot: ShotData):
