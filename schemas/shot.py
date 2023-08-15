@@ -79,3 +79,21 @@ class ShotData(BaseModel):
 
     class Config: 
         orm_mode = True
+
+class DocShotData(BaseModel):
+    doc_id: str
+    isDraft: bool
+    authorId: str
+    title: str
+    rootBlock: MediaBlock
+    blocks: List[Union[TextBlock, ShotGridBlock, MediaBlock]]
+    createdAt: Union[int, float]
+    likes: List[str]
+    views: List[str]
+    comments: List[CommentBlock]
+    needFeedback: bool
+    tags: List[str]
+    thumbnail: Optional[Thumbnail]
+
+    class Config: 
+        orm_mode = True

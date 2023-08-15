@@ -180,6 +180,16 @@ async def getShots(userId: str, asDoc: bool, limit: Optional[int] = None):
     #             shotsList.append(shotData)
 
     # return shotsList
+async def getAllShots():
+    group = db.collection_group('shots')
+    shotsSnaps = await group.where('isDraft', '==', False).get()
+    shotsList = []
+    for shot in shotsSnaps:
+        shotDict = shot.to_dict()
+        shotDict.update({ 'doc_id': shot.id })
+        shotsList.append(shot.to_dict())
+
+    return shotsList
 
 async def getUpgradedUsersShots(order: str='popular', userId: Optional[str]=None):
     group = db.collection_group('shots')

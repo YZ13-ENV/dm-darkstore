@@ -5,7 +5,8 @@ from api.shot import router as ShotRouter
 from api.user import router as UserRouter
 from api.auth import router as AuthRouter
 from api.image import router as ImageRouter
-from fastapi import FastAPI, Header, Request
+from api.search import router as SearhRouter
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
@@ -32,6 +33,7 @@ app.include_router(ShotRouter)
 app.include_router(UserRouter)
 app.include_router(AuthRouter)
 app.include_router(ImageRouter)
+app.include_router(SearhRouter)
 
 @app.on_event('startup')
 async def startup_event():

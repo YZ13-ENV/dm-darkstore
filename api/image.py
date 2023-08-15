@@ -1,11 +1,9 @@
 from datetime import timedelta
-from io import BytesIO
 from fastapi import APIRouter, UploadFile
 from fastapi.responses import FileResponse
 from PIL import Image
 from firebase import storage
 from fastapi_cache.decorator import cache
-import httpx
 import os
 router = APIRouter(
     prefix='/images',
