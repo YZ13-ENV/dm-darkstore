@@ -5,3 +5,4 @@ uvicorn[standard]
 gunicorn[standard]
 Pillow
 firebase-admin
+httpx[http2]

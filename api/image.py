@@ -1,8 +1,11 @@
 from datetime import timedelta
+from io import BytesIO
 from fastapi import APIRouter, UploadFile
+from fastapi.responses import FileResponse
 from PIL import Image
 from firebase import storage
 from fastapi_cache.decorator import cache
+import httpx
 import os
 router = APIRouter(
     prefix='/images',
@@ -41,12 +44,35 @@ def isGif(filename: str):
         return True
     else:
         return False
+def getImageType(fileName: str):
+    if '.png' in fileName:
+        return '.png'
+    elif '.jpg':
+        return '.jpg'
+    return None
+        
+
 
 @router.get('/file')
 @cache(expire=120)
 async def getFileLink(link: str):
     url = storage.blob(link).generate_signed_url(expiration=timedelta(hours=2))
     return url
+
+@router.get('/profileImage')
+# @cache(expire=60)
+async def getImageFile(link: str):
+    if (os.path.exists(path=link)):
+        return FileResponse(path=link)
+    else:
+        imageType = getImageType(link)
+        if imageType:
+            splitted = link.split('/')
+            joined = '/'.join(splitted[slice(-1)])
+            os.makedirs(joined, exist_ok=True)
+            storage.blob(link).download_to_filename(filename=link, raw_download=True)
+            return FileResponse(path=link)
+        return None
 
 @router.post('/uploadMediaInDraft')
 async def uploadMedia(file: UploadFile, uid: str, draftId: str):
