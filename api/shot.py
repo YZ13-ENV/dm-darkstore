@@ -74,3 +74,10 @@ async def getShot(userId: str, shotId: str):
     service = ShotService(userId=userId)
     shot = await service.getShot(shotId=shotId)
     return shot
+
+
+@router.delete('/shot')
+async def deleteShot(userId: str, shotId: str):
+    service = ShotService(userId=userId)
+    res = await service.deleteShot(shotId=shotId)
+    return res

@@ -1,5 +1,5 @@
 from typing import List, Optional
-from database.shot import addOrRemoveLike, addView, getAllUsersShots, getShots, getDrafts, updateDraft, publishDraft, getShot, updateShot, getUpgradedUsersShots
+from database.shot import addOrRemoveLike, addView, getAllUsersShots, getShots, getDrafts, updateDraft, publishDraft, getShot, updateShot, getUpgradedUsersShots, getDeleteShot
 from schemas.draft import DraftToPublish
 from schemas.shot import ShotData, ShotDataForUpload
 
@@ -63,3 +63,10 @@ class ShotService():
     async def getAllUpgradedUsersShots(self, order: str):
         shots = await getUpgradedUsersShots(order=order, userId=self.__userId)
         return shots
+
+    async def deleteShot(self, shotId: str):
+        if (self.__userId):
+            res = await getDeleteShot(self.__userId, shotId)
+            return res
+        else:
+            return False

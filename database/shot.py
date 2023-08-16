@@ -1,3 +1,4 @@
+import httpx
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from database.user import getFollows, getUsersIdList
@@ -255,3 +256,12 @@ async def getShot(userId: str, shotId: str):
         return snapDict
     else:
         return None
+
+async def getDeleteShot(userId: str, shotId: str):
+    shotRef = db.collection('users').document(userId).collection('shots').document(shotId)
+    try:
+        await shotRef.delete()
+        httpx.delete(f'https://api.storage.darkmaterial.space/files/folder?link=users/{userId}/{shotId}')
+        return True
+    except:
+        return False
