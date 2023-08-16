@@ -4,8 +4,7 @@ from fastapi_cache.backends.redis import RedisBackend
 from api.shot import router as ShotRouter
 from api.user import router as UserRouter
 from api.auth import router as AuthRouter
-from api.image import router as ImageRouter
-from api.search import router as SearhRouter
+from api.search import router as SearchRouter
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -32,8 +31,7 @@ app.add_middleware(
 app.include_router(ShotRouter)
 app.include_router(UserRouter)
 app.include_router(AuthRouter)
-app.include_router(ImageRouter)
-app.include_router(SearhRouter)
+app.include_router(SearchRouter)
 
 @app.on_event('startup')
 async def startup_event():
