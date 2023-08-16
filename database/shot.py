@@ -44,7 +44,7 @@ async def publishDraft(userId: str, draftId: str, draft: DraftToPublish):
         'comments': [],
     }
     if (draftSnap.exists):
-        filledShot.update({'createdAt': draftSnap.get('createdAt')})
+        filledShot.update({'createdAt': draftSnap.get('createdAt'), 'thumbnail': draftSnap.get('thumbnail')})
         if dictDraft.get('thumbnail') == None:
             filledShot.pop('thumbnail')
             await draftRef.set(filledShot)
