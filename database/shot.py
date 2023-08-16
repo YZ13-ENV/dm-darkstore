@@ -198,7 +198,7 @@ async def getUpgradedUsersShots(order: str='popular', userId: Optional[str]=None
     for shot in shotsSnaps:
         shotDict = shot.to_dict()
         shotDict.update({ 'doc_id': shot.id })
-        shotsList.append(shot.to_dict())
+        shotsList.append(shotDict)
 
     if (order == 'popular'):
         shotsList.sort(key=getViews, reverse=True)
