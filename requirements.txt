@@ -1,7 +1,7 @@
 fastapi[all]
-aioredis
 fastapi_cache2[redis]
+fastapi-utils
 uvicorn[standard]
 gunicorn[standard]
-Pillow
 firebase-admin
+aioredis
