@@ -5,7 +5,7 @@ from database.user import getFollows, getUsersIdList
 from firebase import db
 from schemas.draft import DraftToPublish
 from schemas.shot import ShotData, ShotDataForUpload
-
+from host import host
 def getCreatedDate(el):
     return el['createdAt']
 
@@ -260,8 +260,11 @@ async def getShot(userId: str, shotId: str):
 async def getDeleteShot(userId: str, shotId: str):
     shotRef = db.collection('users').document(userId).collection('shots').document(shotId)
     try:
-        await shotRef.delete()
-        httpx.delete(f'https://api.storage.darkmaterial.space/files/folder?link=users/{userId}/{shotId}')
-        return True
+        client = httpx.AsyncClient()
+        res = await client.delete(f'{host}/files/folder?link=users/{userId}/{shotId}')
+        if res.is_success:
+            await shotRef.delete()
+            return True
+        return False
     except:
         return False
