@@ -17,8 +17,9 @@ app = FastAPI(docs_url=None, redoc_url=None)
 
 
 origins = [
-    'https://design.darkmaterial.space',
     'https://api.storage.darkmaterial.space',
+    'https://storage.darkmaterial.space',
+    'https://design.darkmaterial.space',
     'https://darkmaterial.space',
     'http://localhost:3000'
 ]
