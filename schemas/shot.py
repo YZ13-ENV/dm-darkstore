@@ -1,6 +1,6 @@
 from __future__ import annotations
 from pydantic import BaseModel
-from typing import Any, Literal, Union, Optional, List
+from typing import Union, Optional, List
 
 class Thumbnail(BaseModel):
     width: int
