@@ -1,6 +1,6 @@
 from __future__ import annotations
 from pydantic import BaseModel
-from typing import Union, Optional, List
+from typing import Any, Literal, Union, Optional, List
 
 class Thumbnail(BaseModel):
     width: int
@@ -44,7 +44,7 @@ class CommentBlock(BaseModel):
     authorId: str
     text: str
     createdAt: Union[int, float]
-    answers: List[CommentBlockNoAnswers]
+    answers: List[Union[None, CommentBlockNoAnswers]]
 
     class Config: 
         orm_mode = True

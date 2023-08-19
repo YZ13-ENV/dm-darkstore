@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 from database.user import getFollows, getUsersIdList
 from firebase import db
 from schemas.draft import DraftToPublish
-from schemas.shot import ShotData, ShotDataForUpload
+from schemas.shot import CommentBlock, ShotData, ShotDataForUpload
 from host import host
 def getCreatedDate(el):
     return el['createdAt']
@@ -268,3 +268,15 @@ async def getDeleteShot(userId: str, shotId: str):
         return False
     except:
         return False
+
+async def addComment(userId: str, shotId: str, comment: CommentBlock):
+        try:
+            shotRef = db.collection('users').document(userId).collection('shots').document(shotId)
+            shotSnap = await shotRef.get()
+            shotDict = shotSnap.to_dict()
+            comments: List[CommentBlock] = shotDict.get('comments')
+            comments.append(comment.model_dump())
+            await shotRef.update({ 'comments': comments })
+            return True
+        except:
+            return False

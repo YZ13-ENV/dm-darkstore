@@ -1,7 +1,7 @@
 from typing import List, Optional
-from database.shot import addOrRemoveLike, addView, getAllUsersShots, getShots, getDrafts, updateDraft, publishDraft, getShot, updateShot, getUpgradedUsersShots, getDeleteShot
+from database.shot import addComment, addOrRemoveLike, addView, getAllUsersShots, getShots, getDrafts, updateDraft, publishDraft, getShot, updateShot, getUpgradedUsersShots, getDeleteShot
 from schemas.draft import DraftToPublish
-from schemas.shot import ShotData, ShotDataForUpload
+from schemas.shot import CommentBlock, ShotData, ShotDataForUpload
 
 class ShotService():
     def __init__(self, userId: Optional[str] ):
@@ -70,3 +70,9 @@ class ShotService():
             return res
         else:
             return False
+
+    async def addComment(self, shotId: str, comment: CommentBlock):
+        if self.__userId:
+            isAdded = await addComment(userId=self.__userId, shotId=shotId, comment=comment)
+            return isAdded
+        else: return False
