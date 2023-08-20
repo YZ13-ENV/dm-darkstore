@@ -7,6 +7,7 @@ from api.shot import router as ShotRouter
 from api.user import router as UserRouter
 from api.auth import router as AuthRouter
 from api.search import router as SearchRouter
+from api.tag import router as TagRouter
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -36,6 +37,7 @@ app.include_router(ShotRouter)
 app.include_router(UserRouter)
 app.include_router(AuthRouter)
 app.include_router(SearchRouter)
+app.include_router(TagRouter)
 
 @app.on_event('startup')
 @repeat_every(seconds=60 * 10)
