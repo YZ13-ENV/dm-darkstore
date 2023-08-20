@@ -17,6 +17,7 @@ async def getShotByTag(tag: str, sortBy: str='popular'):
 
         for snap in snaps:
             snapDict = snap.to_dict()
+            snapDict.update({ 'doc_id': snap.id })
             list.append(snapDict)
 
         return list
@@ -26,6 +27,7 @@ async def getShotByTag(tag: str, sortBy: str='popular'):
 
         for snap in snaps:
             snapDict = snap.to_dict()
+            snapDict.update({ 'doc_id': snap.id })
             list.append(snapDict)
 
         return list
@@ -36,6 +38,7 @@ async def getShotByTag(tag: str, sortBy: str='popular'):
 
         for snap in snaps:
             snapDict = snap.to_dict()
+            snapDict.update({ 'doc_id': snap.id })
             list.append(snapDict)
 
         return list
