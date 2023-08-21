@@ -1,6 +1,6 @@
 from typing import List, Optional
 from fastapi import APIRouter
-from database.shot import getAllShots
+from database.shot import getAllShots, getCreatedDate, getViews
 from schemas.shot import DocShotData
 
 router = APIRouter(
@@ -9,7 +9,7 @@ router = APIRouter(
 )
 
 @router.get('/shots')
-async def searchShots(q: str):
+async def searchShots(q: str, order: str='popular'):
     shots: List[DocShotData] = await getAllShots()
     res_shots = []
 
@@ -23,5 +23,12 @@ async def searchShots(q: str):
                 if text != None:
                     if q in text.lower():
                         res_shots.append(shot)
+
+    if (order == 'popular'):
+        res_shots.sort(key=getViews, reverse=True)
+        return res_shots
+    elif (order == 'new'):
+        res_shots.sort(key=getCreatedDate, reverse=True)
+        return res_shots
 
     return res_shots
