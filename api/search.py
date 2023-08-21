@@ -26,9 +26,9 @@ async def searchShots(q: str, order: str='popular'):
 
     if (order == 'popular'):
         res_shots.sort(key=getViews, reverse=True)
-        return res_shots
-    elif (order == 'new'):
+            
+    if (order == 'new'):
         res_shots.sort(key=getCreatedDate, reverse=True)
-        return res_shots
+        
 
     return res_shots
