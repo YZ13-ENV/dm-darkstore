@@ -1,6 +1,5 @@
-from typing import List
-from fastapi import APIRouter, Depends
-from fastapi_cache.decorator import cache
+from typing import List, Optional
+from fastapi import APIRouter
 from database.shot import getAllShots
 from schemas.shot import DocShotData
 
@@ -15,11 +14,14 @@ async def searchShots(q: str):
     res_shots = []
 
     for shot in shots:
-        if q in shot['title'] or q in shot['blocks']:
+        title: str = shot.get('title')
+        if q in title.lower():
             res_shots.append(shot)
         else:
             for block in shot['blocks']:
-                if q in block.get('text'):
-                    res_shots.append(shot)
+                text: Optional[str] = block.get('text')
+                if text != None:
+                    if q in text.lower():
+                        res_shots.append(shot)
 
     return res_shots

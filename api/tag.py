@@ -1,6 +1,7 @@
 from typing import Union
 from fastapi import APIRouter
 from firebase import db
+from fastapi_cache.decorator import cache
 
 router = APIRouter(
     prefix='/tags',
@@ -8,6 +9,7 @@ router = APIRouter(
 )
 
 @router.get('/{tag}')
+@cache(expire=120)
 async def getShotByTag(tag: str, sortBy: str='popular'):
     group = db.collection_group('shots')
     list = []
