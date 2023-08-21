@@ -188,7 +188,7 @@ async def getAllShots():
     for shot in shotsSnaps:
         shotDict = shot.to_dict()
         shotDict.update({ 'doc_id': shot.id })
-        shotsList.append(shot.to_dict())
+        shotsList.append(shotDict)
 
     return shotsList
 
