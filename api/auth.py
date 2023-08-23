@@ -1,8 +1,9 @@
 from typing import Union
+from schemas.auth import Session
 from services.authService import AuthService
 from fastapi import APIRouter, Response
 from fastapi.responses import Response
-
+from firebase import db
 router = APIRouter(
     prefix='/auth',
     tags=['Авторизация']
@@ -20,3 +21,29 @@ async def authComplete(email: str):
         res = Response(status_code=200)
         res['accessToken'] = uid
         return res
+
+
+@router.get('/session')
+async def postSession(sid: str):
+    try:
+        sessionRef = db.collection('sessions').document(sid)
+        sessionSnap = await sessionRef.get()
+        sessionDict = sessionSnap.to_dict()
+        return sessionDict
+    except:
+        return None
+
+@router.post('/session')
+async def postSession(session: Session):
+    try:
+        sessionDict = session.dict()
+        sessionRef = db.collection('sessions').document(sessionDict.get('sid'))
+        sessionSnap = await sessionRef.get()
+        if sessionSnap.exists:
+            await sessionRef.update(sessionDict)
+            return True
+        else:
+            await sessionRef.set(sessionDict)
+            return True
+    except: 
+        return False

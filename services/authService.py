@@ -6,7 +6,6 @@ from typing import Optional
 
 from database.user import getUserUIDByEmail
 
-
 class AuthService():
     def __init__(self, userId: Optional[str]= None) -> None:
         self.__userId = userId
