@@ -42,14 +42,14 @@ app.include_router(SearchRouter)
 app.include_router(TagRouter)
 app.include_router(NoteRouter)
 
-@app.on_event('startup')
-@repeat_every(seconds=60 * 10)
-async def wakeUpServer():
-    response = httpx.get('https://api.storage.darkmaterial.space/')
-    if response.is_success:
-        print('i woke up api storage server')
-    else:
-        print(f"Couldn't wake up {response.status_code}")
+# @app.on_event('startup')
+# @repeat_every(seconds=60 * 10)
+# async def wakeUpServer():
+#     response = httpx.get('https://api.storage.darkmaterial.space/')
+#     if response.is_success:
+#         print('i woke up api storage server')
+#     else:
+#         print(f"Couldn't wake up {response.status_code}")
 
 @app.on_event('startup')
 async def startup_event():
