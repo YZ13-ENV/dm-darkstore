@@ -4,11 +4,11 @@ from services.authService import AuthService
 from fastapi import APIRouter, Response
 from fastapi.responses import Response
 from firebase import db
+
 router = APIRouter(
     prefix='/auth',
     tags=['Авторизация']
 )
-
 
 @router.post('/authComplete')
 async def authComplete(email: str):

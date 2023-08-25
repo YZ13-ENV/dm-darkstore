@@ -8,6 +8,7 @@ from api.user import router as UserRouter
 from api.auth import router as AuthRouter
 from api.search import router as SearchRouter
 from api.tag import router as TagRouter
+from api.note import router as NoteRouter
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -21,6 +22,7 @@ origins = [
     'https://api.storage.darkmaterial.space',
     'https://storage.darkmaterial.space',
     'https://design.darkmaterial.space',
+    'https://notes.darkmaterial.space',
     'https://darkmaterial.space',
     'http://localhost:3000'
 ]
@@ -38,6 +40,7 @@ app.include_router(UserRouter)
 app.include_router(AuthRouter)
 app.include_router(SearchRouter)
 app.include_router(TagRouter)
+app.include_router(NoteRouter)
 
 @app.on_event('startup')
 @repeat_every(seconds=60 * 10)
