@@ -1,5 +1,5 @@
-from typing import List, Optional
-from database.shot import addComment, addOrRemoveLike, addView, getAllUsersShots, getShots, getDrafts, updateDraft, publishDraft, getShot, updateShot, getUpgradedUsersShots, getDeleteShot
+from typing import Optional
+from database.shot import addComment, addOrRemoveLike, addView, getAllUsersShots, getShots, getDrafts, updateDraft, publishDraft, getShot, updateShot, getUpgradedUsersShots, getDeleteShot, getChunkedShots
 from schemas.draft import DraftToPublish
 from schemas.shot import CommentBlock, ShotData, ShotDataForUpload
 
@@ -13,6 +13,10 @@ class ShotService():
             return shots
         else:
             return None
+
+    async def getChunk(self, order: str, skip: Optional[int]):
+        shots = await getChunkedShots(order=order, userId=self.__userId, skip=skip)
+        return shots
 
     async def getShot(self, shotId: str):
         if self.__userId:

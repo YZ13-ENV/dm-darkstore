@@ -4,7 +4,7 @@ from schemas.shot import CommentBlock, ShotData, ShotDataForUpload
 from services.shotService import ShotService
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
-
+from firebase import db
 router = APIRouter(
     prefix='/shots',
     tags=['Работы']
@@ -36,6 +36,13 @@ async def getPopularFromAllShots(order: Optional[str]='popular', userId: Optiona
 async def getPopularFromAllShots(order: Optional[str]='popular', userId: Optional[str]=None):
     service = ShotService(userId=userId)
     shots = await service.getAllUpgradedUsersShots(order=order)
+    return shots
+
+@router.get('/v2/chunkedAllShots/{order}')
+async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip: Optional[int]=0):
+    service = ShotService(userId=userId)
+    shots = await service.getChunk(order=order, skip=skip)
+
     return shots
 
 @router.post('/updateShot')
