@@ -38,6 +38,18 @@ async def getPopularFromAllShots(order: Optional[str]='popular', userId: Optiona
     shots = await service.getAllUpgradedUsersShots(order=order)
     return shots
 
+@router.get('/allShotsCount')
+async def getAllShotCount():
+    group = db.collection_group('shots')
+    shotsSnapsQuery = group.where('isDraft', '==', False)
+    shots = await shotsSnapsQuery.get()
+    list = []
+    for shot in shots:
+        shotDict = shot.to_dict()
+        list.append(shotDict)
+    return len(list)
+
+
 @router.get('/v2/chunkedAllShots/{order}')
 async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip: Optional[int]=0):
     service = ShotService(userId=userId)
