@@ -15,8 +15,18 @@ async def uploadFileFromString(file: bytes, link: str):
     return res
 
 async def removeByLink(link: str):
+    res = s3.delete_object(Bucket="dark-material", Key=link)
+    return res
+
+async def removeFolder(link: str):
     try:
-        s3.delete_object(Bucket="dark-material", Key=link)
+        keysForObjects = []
+        for key in s3.list_objects(Bucket='dark-material', Prefix=link)['Contents']:
+            keysForObjects.append(key['Key'])
+        if len(keysForObjects) > 0:
+            for key in keysForObjects:
+               await removeByLink(key)
         return True
+    
     except:
         return False

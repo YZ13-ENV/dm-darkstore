@@ -1,7 +1,7 @@
 import httpx
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-from database.files import removeByLink
+from database.files import removeFolder
 from database.user import getFollows, getUsersIdList
 from firebase import db
 from helpers.generators import id_generator
@@ -292,7 +292,7 @@ async def getDeleteShot(userId: str, shotId: str):
     try:    
         link_to_obj = f'users/{userId}/{shotId}'
         await shotRef.delete()
-        res = await removeByLink(link=link_to_obj)
+        res = await removeFolder(link=link_to_obj)
         return res
     except:
         return False
@@ -311,7 +311,6 @@ async def removeComment(userId: str, shotId: str, commentId: str):
         shotSnap = await shotRef.get()
         shotDict = shotSnap.to_dict()
         comments: List[CommentBlock] = shotDict.get('comments')
-        print(commentId)
         filteredComments = removeIdFromComment(comments=comments, idToDelete=commentId)
         await shotRef.update({ 'comments': filteredComments })
         return True
