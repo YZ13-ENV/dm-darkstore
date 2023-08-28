@@ -1,6 +1,7 @@
 import httpx
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+from database.files import removeByLink
 from database.user import getFollows, getUsersIdList
 from firebase import db
 from helpers.generators import id_generator
@@ -288,13 +289,11 @@ async def getShot(userId: str, shotId: str):
 
 async def getDeleteShot(userId: str, shotId: str):
     shotRef = db.collection('users').document(userId).collection('shots').document(shotId)
-    try:
-        client = httpx.AsyncClient()
-        res = await client.delete(f'{host}/files/folder?link=users/{userId}/{shotId}')
-        if res.is_success:
-            await shotRef.delete()
-            return True
-        return False
+    try:    
+        link_to_obj = f'users/{userId}/{shotId}'
+        await shotRef.delete()
+        res = await removeByLink(link=link_to_obj)
+        return res
     except:
         return False
 
