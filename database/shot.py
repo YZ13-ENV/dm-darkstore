@@ -16,7 +16,7 @@ async def addShotAsDraft(userId: str, shotId: str, shot: ShotDataForUpload):
     # post
     draftRef = db.collection('users').document(userId).collection('shots').document(shotId)
     draftSnap = await draftRef.get()
-    dictDraft = shot.model_dump()
+    dictDraft = shot.dict()
     filledDraft = {
         'isDraft': True,
         'authorId': userId,
@@ -34,7 +34,7 @@ async def addShotAsDraft(userId: str, shotId: str, shot: ShotDataForUpload):
 async def publishDraft(userId: str, draftId: str, draft: DraftToPublish):
     draftRef = db.collection('users').document(userId).collection('shots').document(draftId)
     draftSnap = await draftRef.get()
-    dictDraft = draft.model_dump()
+    dictDraft = draft.dict()
     filledShot = {
         **dictDraft,
         'isDraft': False,
@@ -56,7 +56,7 @@ async def publishDraft(userId: str, draftId: str, draft: DraftToPublish):
 
 async def updateShot(userId: str, shotId: str, shot: ShotData):
     shotRef = db.collection('users').document(userId).collection('shots').document(shotId)
-    dictShot = shot.model_dump()
+    dictShot = shot.dict()
     if (dictShot.get('doc_id') != None):
         dictShot.pop('doc_id')
         await shotRef.update(dictShot)
@@ -70,7 +70,7 @@ async def updateDraft(userId: str, draftId: str, draft: ShotDataForUpload):
     # patch
     draftRef = db.collection('users').document(userId).collection('shots').document(draftId)
     draftSnap = await draftRef.get()
-    dictDraft = draft.model_dump()
+    dictDraft = draft.dict()
     filledDraft = {
         **dictDraft,
         'isDraft': True,
@@ -303,7 +303,7 @@ async def addComment(userId: str, shotId: str, comment: CommentBlock):
             shotSnap = await shotRef.get()
             shotDict = shotSnap.to_dict()
             comments: List[CommentBlock] = shotDict.get('comments')
-            comments.append(comment.model_dump())
+            comments.append(comment.dict())
             await shotRef.update({ 'comments': comments })
             return True
         except:

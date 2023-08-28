@@ -1,14 +1,13 @@
 import aioredis 
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
-from fastapi_utils.tasks import repeat_every
-import httpx
 from api.shot import router as ShotRouter
 from api.user import router as UserRouter
 from api.auth import router as AuthRouter
 from api.search import router as SearchRouter
 from api.tag import router as TagRouter
 from api.note import router as NoteRouter
+from api.files import router as FilesRouter
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -41,15 +40,8 @@ app.include_router(AuthRouter)
 app.include_router(SearchRouter)
 app.include_router(TagRouter)
 app.include_router(NoteRouter)
+app.include_router(FilesRouter)
 
-# @app.on_event('startup')
-# @repeat_every(seconds=60 * 10)
-# async def wakeUpServer():
-#     response = httpx.get('https://api.darkmaterial.space/')
-#     if response.is_success:
-#         print('i woke up myself')
-#     else:
-#         print(f"Couldn't wake up {response.status_code}")
 
 @app.on_event('startup')
 async def startup_event():
