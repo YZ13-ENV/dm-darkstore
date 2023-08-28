@@ -196,7 +196,7 @@ async def getAllShots():
 
 async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip: Optional[int]=0):
     group = db.collection_group('shots')
-    shotsSnapsQuery = group.where('isDraft', '==', False).limit(12).offset(skip)
+    shotsSnapsQuery = group.where('isDraft', '==', False).limit(16).offset(skip)
     shotsSnaps = await shotsSnapsQuery.get()
     shotsList = []
     for shot in shotsSnaps:
