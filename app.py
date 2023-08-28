@@ -18,8 +18,7 @@ app = FastAPI(debug=True)
 
 
 origins = [
-    'https://api.storage.darkmaterial.space',
-    'https://storage.darkmaterial.space',
+    'https://auth.darkmaterial.space',
     'https://design.darkmaterial.space',
     'https://notes.darkmaterial.space',
     'https://darkmaterial.space',
