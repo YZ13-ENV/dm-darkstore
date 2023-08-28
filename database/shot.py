@@ -3,8 +3,9 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 from database.user import getFollows, getUsersIdList
 from firebase import db
+from helpers.generators import id_generator
 from schemas.draft import DraftToPublish
-from schemas.shot import CommentBlock, ShotData, ShotDataForUpload
+from schemas.shot import CommentBlock, ShotData, ShotDataForUpload, NewCommentBlock
 from host import host
 def getCreatedDate(el):
     return el['createdAt']
@@ -297,13 +298,36 @@ async def getDeleteShot(userId: str, shotId: str):
     except:
         return False
 
-async def addComment(userId: str, shotId: str, comment: CommentBlock):
+def removeIdFromComment(comments: List[CommentBlock], idToDelete: str):
+    resList = []
+    for comment in comments:
+        if comment.get('id') != idToDelete:
+            resList.append(comment)
+
+    return resList
+
+async def removeComment(userId: str, shotId: str, commentId: str):
+    try:
+        shotRef = db.collection('users').document(userId).collection('shots').document(shotId)
+        shotSnap = await shotRef.get()
+        shotDict = shotSnap.to_dict()
+        comments: List[CommentBlock] = shotDict.get('comments')
+        print(commentId)
+        filteredComments = removeIdFromComment(comments=comments, idToDelete=commentId)
+        await shotRef.update({ 'comments': filteredComments })
+        return True
+    except:
+        return False
+
+async def addComment(userId: str, shotId: str, comment: NewCommentBlock):
         try:
             shotRef = db.collection('users').document(userId).collection('shots').document(shotId)
             shotSnap = await shotRef.get()
             shotDict = shotSnap.to_dict()
             comments: List[CommentBlock] = shotDict.get('comments')
-            comments.append(comment.dict())
+            commentDict = comment.dict()
+            commentDict.update({ 'id': id_generator(15) })
+            comments.append(commentDict)
             await shotRef.update({ 'comments': comments })
             return True
         except:

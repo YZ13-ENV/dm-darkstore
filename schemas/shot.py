@@ -41,6 +41,7 @@ class CommentBlockNoAnswers(BaseModel):
         orm_mode = True
 
 class CommentBlock(BaseModel):
+    id: str
     authorId: str
     text: str
     createdAt: Union[int, float]
@@ -48,6 +49,15 @@ class CommentBlock(BaseModel):
 
     class Config: 
         orm_mode = True
+
+class NewCommentBlock(BaseModel):
+    authorId: str
+    text: str
+    createdAt: Union[int, float]
+    answers: List[Union[None, CommentBlockNoAnswers]]
+
+    class Config: 
+        orm_mode = True    
 
 class ShotDataForUpload(BaseModel):
     title: str
@@ -57,6 +67,7 @@ class ShotDataForUpload(BaseModel):
 
     class Config: 
         orm_mode = True
+
 
 class ThumbnailThree(BaseModel):
     desktop: Thumbnail

@@ -1,6 +1,6 @@
 from typing import Optional
 from schemas.draft import  DraftToPublish
-from schemas.shot import CommentBlock, ShotData, ShotDataForUpload
+from schemas.shot import CommentBlock, NewCommentBlock, ShotData, ShotDataForUpload
 from services.shotService import ShotService
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
@@ -95,11 +95,16 @@ async def getShot(userId: str, shotId: str):
     return shot
 
 @router.post('/addComment')
-async def addComment(userId: str, shotId: str, comment: CommentBlock):
+async def addComment(userId: str, shotId: str, comment: NewCommentBlock):
     service = ShotService(userId=userId)
     isAdded = await service.addComment(shotId=shotId, comment=comment)
     return isAdded
 
+@router.delete('/removeComment')
+async def removeComment(userId: str, shotId: str, commentId: str):
+    service = ShotService(userId=userId)
+    isAdded = await service.removeComment(shotId=shotId, commentId=commentId)
+    return isAdded
 
 @router.delete('/shot')
 async def deleteShot(userId: str, shotId: str):

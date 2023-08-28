@@ -1,7 +1,5 @@
 from typing import List, Optional
 from firebase import db, auth
-# from schemas.user import UserShortData
-from helpers import isShortsDataNotEq
 
 
 def getUsersIdList():
@@ -151,22 +149,3 @@ async def getUserRecord(userId: str):
         return user
     except:
         return None
-
-async def isLocalAndDBShortEq(userId: str):
-    shortData = await getShortData(userId)
-    record = await getUserRecord(userId=userId)
-    if (record and shortData):
-        shortFromRecord = {
-            'email': record._data.get('email'),
-            'displayName': record._data.get('displayName'),
-            'photoUrl': record._data.get('photoUrl'),
-        }
-        isEq = isShortsDataNotEq(shortFromRecord, shortData)
-        return isEq
-    else:
-        return False
-    
-async def checkShortData(userId: str):
-    isEq = await isLocalAndDBShortEq(userId)
-    if not isEq:
-        await setShortDataFromDB(userId)
