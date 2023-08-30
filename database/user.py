@@ -25,6 +25,10 @@ async def isInFollowList(userId: str, followId: str):
         else:
             return False
         
+async def setPlusSubscription(userId: str, subscriptionStatus: bool):
+    if userId:
+        auth.set_custom_user_claims(userId, { 'isSubscriber': subscriptionStatus })
+
 async def getFollows(userId: str):
     userRef = db.collection('users').document(userId)
     user = await userRef.get()
@@ -109,16 +113,20 @@ async def setShortDataFromDB(userId: str):
 async def getShortDataFromRecord(userId: str):
     record = await getUserRecord(userId=userId)
     if record:
+        if (not record.custom_claims):
+            auth.set_custom_user_claims(userId, { 'isSubscriber': False })
+        if (record.custom_claims and not record.custom_claims.get('isSubscriber')):
+            auth.set_custom_user_claims(userId, { 'isSubscriber': False })
         short = {
             'short': {
                 'email': record._data.get('email'),
                 'displayName': record._data.get('displayName'),
                 'photoUrl': record._data.get('photoUrl'),
+                'isSubscriber': record.custom_claims.get('isSubscriber')
             }
         }
         return short
-    else:
-        return None
+    return None
 
 async def getShortDataByEmail(email: str):
     try:

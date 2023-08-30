@@ -8,6 +8,10 @@ router = APIRouter(
     tags=['Поиск']
 )
 
+@router.get('/global')
+async def globalSearch(q: str):
+    pass
+
 @router.get('/shots')
 async def searchShots(q: str, order: str='popular'):
     shots: List[DocShotData] = await getAllShots()
@@ -30,5 +34,4 @@ async def searchShots(q: str, order: str='popular'):
     if (order == 'new'):
         res_shots.sort(key=getCreatedDate, reverse=True)
         
-
     return res_shots

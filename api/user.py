@@ -1,7 +1,8 @@
 from typing import Optional
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
-
+from database.user import setPlusSubscription
+from firebase import auth
 from services.userService import UserService
 router = APIRouter(
     prefix='/users',
