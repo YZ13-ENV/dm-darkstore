@@ -16,6 +16,7 @@ class ListItem(BaseModel):
 
 class NoteListBlock(BaseModel):
     type: str
+    title: str
     list: List[ListItem]
     
     class Config: 
@@ -30,13 +31,14 @@ class TaskListItem(BaseModel):
 
 class NoteTaskListBlock(BaseModel):
     type: str
+    title: str
     list: List[TaskListItem]
     
     class Config: 
         orm_mode = True
 
 class Note(BaseModel):
-    title: set
+    title: str
     isPinned: bool
     createdAt: Union[float, int]
     blocks: List[Union[NoteTaskListBlock, NoteListBlock, NoteTextBlock]]
@@ -47,7 +49,7 @@ class Note(BaseModel):
 
 class DocNote(BaseModel):
     doc_id: str
-    title: set
+    title: str
     isPinned: bool
     createdAt: Union[float, int]
     blocks: List[Union[NoteTaskListBlock, NoteListBlock, NoteTextBlock]]

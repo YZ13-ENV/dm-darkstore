@@ -27,7 +27,7 @@ async def getNoteById(userId: str, noteId: str):
     noteSnap = await noteRef.get()
     if noteSnap.exists:
         noteDict = noteSnap.to_dict()
-        noteDict.update({ 'doc_id': noteSnap.id })
+        # noteDict.update({ 'doc_id': noteSnap.id })
         return noteDict
     else: return None
 
@@ -42,7 +42,7 @@ async def postNoteById(userId: str, noteId: str, note: Note):
         return False
     
 @router.patch('/note/{noteId}')
-async def patchNoteById(userId: str, noteId: str, note: DocNote):
+async def patchNoteById(userId: str, noteId: str, note: Note):
     try:
         noteRef = db.collection('users').document(userId).collection('notes').document(noteId)
         noteDict = note.dict()
