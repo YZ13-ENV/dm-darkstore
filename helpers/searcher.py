@@ -17,7 +17,7 @@ async def createShotSearchQuery(userId: str, list: List[List[ShotData]]):
             searchQuery = {
                 'type': 'shots',
                 'user': shortData.get('short'),
-                'shots': item
+                'items': item
             }
             queries.append(searchQuery)
     return queries
@@ -77,7 +77,7 @@ async def createEventSearchQuery(userId: str, list: List[CalendarEvent]):
             searchQuery = {
                 'type': 'events',
                 'user': shortData.get('short'),
-                'event': item
+                'items': item
             }
             queries.append(searchQuery)
     return queries
@@ -123,7 +123,7 @@ async def createNoteSearchQuery(userId: str, list: List[Note]):
             searchQuery = {
                 'type': 'notes',
                 'user': shortData.get('short'),
-                'note': item
+                'items': item
             }
             queries.append(searchQuery)
     return queries
