@@ -12,7 +12,7 @@ router = APIRouter(
 @router.get('/global')
 async def globalSearch(userId: str, q: str):
     shots = await getSearchedShots(userId=userId, q=q.lower())
-    chunkedShots = divide_chunks(shots, 4)
+    chunkedShots = divide_chunks(shots, 3)
     shotsQueries = await createShotSearchQuery(userId=userId, list=chunkedShots)
 
     events = await getSearchedEvents(userId=userId, q=q.lower())
