@@ -1,7 +1,15 @@
 from pydantic import BaseModel
-from typing import Optional, Union, List
+from typing import Union, List
 
 class NoteTextBlock(BaseModel):
+    type: str
+    text: str
+
+    class Config: 
+        orm_mode = True
+
+
+class NoteHeadingBlock(BaseModel):
     type: str
     text: str
 
@@ -41,7 +49,7 @@ class Note(BaseModel):
     title: str
     isPinned: bool
     createdAt: Union[float, int]
-    blocks: List[Union[NoteTaskListBlock, NoteListBlock, NoteTextBlock]]
+    blocks: List[Union[NoteHeadingBlock, NoteTaskListBlock, NoteListBlock, NoteTextBlock]]
     authorId: str
 
     class Config: 
@@ -52,7 +60,7 @@ class DocNote(BaseModel):
     title: str
     isPinned: bool
     createdAt: Union[float, int]
-    blocks: List[Union[NoteTaskListBlock, NoteListBlock, NoteTextBlock]]
+    blocks: List[Union[NoteHeadingBlock, NoteTaskListBlock, NoteListBlock, NoteTextBlock]]
     authorId: str
 
     class Config: 
