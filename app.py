@@ -8,6 +8,7 @@ from api.search import router as SearchRouter
 from api.tag import router as TagRouter
 from api.note import router as NoteRouter
 from api.files import router as FilesRouter
+from api.calendar import router as CalendarRouter
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -40,6 +41,7 @@ app.include_router(SearchRouter)
 app.include_router(TagRouter)
 app.include_router(NoteRouter)
 app.include_router(FilesRouter)
+app.include_router(CalendarRouter)
 
 
 @app.on_event('startup')
