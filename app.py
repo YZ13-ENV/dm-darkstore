@@ -22,6 +22,7 @@ origins = [
     'https://auth.darkmaterial.space',
     'https://design.darkmaterial.space',
     'https://notes.darkmaterial.space',
+    'https://calendar.darkmaterial.space',
     'https://darkmaterial.space',
     'http://localhost:3000'
 ]
