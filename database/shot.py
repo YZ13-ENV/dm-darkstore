@@ -143,14 +143,15 @@ async def getShots(userId: str, asDoc: bool, order: Optional[str]='popular', lim
         shots = await shotsRef.get()
         shotsList = []
         for shot in shots:
-            if exclude and not shot.id == exclude:
-                shotData: Dict[str, Any] = shot.to_dict()
-                if shotData.get('isDraft') == False:
-                    if (asDoc):
-                        shotData['doc_id'] = shot.id
-                        shotsList.append(shotData)
-                    if (not asDoc):
-                        shotsList.append(shotData)
+            if exclude:
+                if shot.id != exclude:
+                    shotData: Dict[str, Any] = shot.to_dict()
+                    if shotData.get('isDraft') == False:
+                        if (asDoc):
+                            shotData['doc_id'] = shot.id
+                            shotsList.append(shotData)
+                        if (not asDoc):
+                            shotsList.append(shotData)
             else:
                 shotData: Dict[str, Any] = shot.to_dict()
                 if shotData.get('isDraft') == False:
@@ -169,14 +170,15 @@ async def getShots(userId: str, asDoc: bool, order: Optional[str]='popular', lim
         shots = await shotsRef.get()
         shotsList = []
         for shot in shots:
-            if exclude and not shot.id == exclude:
-                shotData: Dict[str, Any] = shot.to_dict()
-                if shotData.get('isDraft') == False:
-                    if (asDoc):
-                        shotData['doc_id'] = shot.id
-                        shotsList.append(shotData)
-                    if (not asDoc):
-                        shotsList.append(shotData)
+            if exclude:
+                if shot.id != exclude:
+                    shotData: Dict[str, Any] = shot.to_dict()
+                    if shotData.get('isDraft') == False:
+                        if (asDoc):
+                            shotData['doc_id'] = shot.id
+                            shotsList.append(shotData)
+                        if (not asDoc):
+                            shotsList.append(shotData)
             else:
                 shotData: Dict[str, Any] = shot.to_dict()
                 if shotData.get('isDraft') == False:
