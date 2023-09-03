@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from schemas.draft import  DraftToPublish
 from schemas.shot import CommentBlock, NewCommentBlock, ShotData, ShotDataForUpload
 from services.shotService import ShotService
@@ -12,9 +12,9 @@ router = APIRouter(
 
 @router.get('/onlyShots')
 @cache(expire=60)
-async def getOnlyShots(userId: str, asDoc: bool=True, limit: Optional[int]=None):
+async def getOnlyShots(userId: str, asDoc: bool=True, order: Optional[str]='popular', limit: Optional[int]=None, exclude: Optional[str]=None):
     service = ShotService(userId=userId)
-    shots = await service.getShots(asDoc=asDoc, limit=limit)
+    shots = await service.getShots(asDoc=asDoc, limit=limit, exclude=exclude, order=order)
     return shots
 
 @router.get('/onlyDrafts')
