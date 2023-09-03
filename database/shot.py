@@ -139,11 +139,11 @@ async def getDrafts(userId: str, asDoc: bool):
 
 async def getShots(userId: str, asDoc: bool, order: Optional[str]='popular', limit: Optional[int] = None, exclude: Optional[str] = None):
     if not limit:
-        shotsRef = db.collection('users').document(userId).collection('shots').where('isDraft', '==', False).list_documents()
+        shotsRef = db.collection('users').document(userId).collection('shots').where('isDraft', '==', False)
+        shots = await shotsRef.get()
         shotsList = []
-        async for shot in shotsRef:
+        for shot in shots:
             if exclude and not shot.id == exclude:
-                shot = await shot.get()
                 shotData: Dict[str, Any] = shot.to_dict()
                 if shotData.get('isDraft') == False:
                     if (asDoc):
@@ -151,18 +151,33 @@ async def getShots(userId: str, asDoc: bool, order: Optional[str]='popular', lim
                         shotsList.append(shotData)
                     if (not asDoc):
                         shotsList.append(shotData)
-
+            else:
+                shotData: Dict[str, Any] = shot.to_dict()
+                if shotData.get('isDraft') == False:
+                    if (asDoc):
+                        shotData['doc_id'] = shot.id
+                        shotsList.append(shotData)
+                    if (not asDoc):
+                        shotsList.append(shotData)
         if (order == 'popular'):
             shotsList.sort(key=getViews, reverse=True)
         elif (order == 'new'):
             shotsList.sort(key=getCreatedDate, reverse=True)
         return shotsList
     else:
-        shotsRef = db.collection('users').list_documents() #.document(userId).collection('shots').where('isDraft', '==', False).order_by('createdAt', 'DESCENDING')
+        shotsRef = db.collection('users').document(userId).collection('shots').where('isDraft', '==', False).order_by('createdAt', 'DESCENDING')
+        shots = await shotsRef.get()
         shotsList = []
-        async for shot in shotsRef:
+        for shot in shots:
             if exclude and not shot.id == exclude:
-                shot = await shot.get()
+                shotData: Dict[str, Any] = shot.to_dict()
+                if shotData.get('isDraft') == False:
+                    if (asDoc):
+                        shotData['doc_id'] = shot.id
+                        shotsList.append(shotData)
+                    if (not asDoc):
+                        shotsList.append(shotData)
+            else:
                 shotData: Dict[str, Any] = shot.to_dict()
                 if shotData.get('isDraft') == False:
                     if (asDoc):
