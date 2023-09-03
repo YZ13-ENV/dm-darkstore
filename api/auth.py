@@ -1,10 +1,11 @@
-from typing import Union
+import os
+from typing import Dict, Union
 from schemas.auth import Session
 from services.authService import AuthService
 from fastapi import APIRouter, Response
 from fastapi.responses import Response
 from firebase import db
-
+from jwt import decode, encode
 router = APIRouter(
     prefix='/auth',
     tags=['Авторизация']
@@ -26,7 +27,9 @@ async def authComplete(email: str):
 @router.get('/session')
 async def postSession(sid: str):
     try:
-        sessionRef = db.collection('sessions').document(sid)
+        sidFromToken: Dict[str, str] = decode(sid, os.getenv('JWT_SECRET'))
+        taken_sid = sidFromToken.get('sid')
+        sessionRef = db.collection('sessions').document(taken_sid)
         sessionSnap = await sessionRef.get()
         sessionDict = sessionSnap.to_dict()
         return sessionDict
@@ -34,9 +37,10 @@ async def postSession(sid: str):
         return None
 
 @router.post('/session')
-async def postSession(session: Session):
+async def postSession(sessionToken: str):
     try:
-        sessionDict = session.dict()
+        sessionFromToken = Dict[str, str] = decode(sessionToken, os.getenv('JWT_SECRET'))
+        sessionDict = sessionFromToken.get('session')
         sessionRef = db.collection('sessions').document(sessionDict.get('sid'))
         sessionSnap = await sessionRef.get()
         if sessionSnap.exists:
