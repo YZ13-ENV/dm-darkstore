@@ -11,6 +11,7 @@ router = APIRouter(
 )
 
 @router.get('/onlyShots')
+@cache(expire=60)
 async def getOnlyShots(userId: str, asDoc: bool=True, order: Optional[str]='popular', limit: Optional[int]=None, exclude: Optional[str]=None):
     service = ShotService(userId=userId)
     shots = await service.getShots(asDoc=asDoc, limit=limit, exclude=exclude, order=order)
@@ -87,7 +88,6 @@ async def publishDraft(userId: str, draftId: str, draft: DraftToPublish):
     return isDone
 
 @router.get('/shot')
-@cache(expire=60)
 async def getShot(userId: str, shotId: str):
     service = ShotService(userId=userId)
     shot = await service.getShot(shotId=shotId)
