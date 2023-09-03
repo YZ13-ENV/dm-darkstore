@@ -1,5 +1,6 @@
 import os
 from typing import Dict, Union
+from uuid import uuid4
 from schemas.auth import Session
 from services.authService import AuthService
 from fastapi import APIRouter, Response
@@ -25,29 +26,40 @@ async def authComplete(email: str):
 
 
 @router.get('/session')
-async def postSession(sid: str):
+async def getSession(sid: str):
     try:
         sidFromToken: Dict[str, str] = decode(sid, os.getenv('JWT_SECRET'))
         taken_sid = sidFromToken.get('sid')
         sessionRef = db.collection('sessions').document(taken_sid)
         sessionSnap = await sessionRef.get()
         sessionDict = sessionSnap.to_dict()
-        return sessionDict
+        payload = {
+            'session': sessionDict
+        }
+        token: str = encode(payload=payload, key=os.getenv('JWT_SECRET'))
+        return token
     except:
         return None
 
-@router.post('/session')
-async def postSession(sessionToken: str):
-    try:
-        sessionFromToken = Dict[str, str] = decode(sessionToken, os.getenv('JWT_SECRET'))
-        sessionDict = sessionFromToken.get('session')
-        sessionRef = db.collection('sessions').document(sessionDict.get('sid'))
-        sessionSnap = await sessionRef.get()
-        if sessionSnap.exists:
-            await sessionRef.update(sessionDict)
-            return True
-        else:
-            await sessionRef.set(sessionDict)
-            return True
-    except: 
-        return False
+@router.post('/generate/session')
+async def generateSession():
+    session: Session = {
+        'sid': uuid4(),
+        'uid': None,
+        'disabled': False,
+        'uids': []
+    }
+    payload = {
+        'session': session
+    }
+    token: str = encode(payload=payload, key=os.getenv('JWT_SECRET'))
+    return token
+
+
+@router.post('/generate/sid')
+async def generateSessionSid(sid: str):
+    payload = {
+        'sid': sid
+    }
+    token: str = encode(payload=payload, key=os.getenv('JWT_SECRET'))
+    return token
