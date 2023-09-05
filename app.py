@@ -11,6 +11,7 @@ from api.tag import router as TagRouter
 from api.note import router as NoteRouter
 from api.files import router as FilesRouter
 from api.calendar import router as CalendarRouter
+from api.indexation import router as IndexationRouter
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -45,6 +46,7 @@ app.include_router(TagRouter)
 app.include_router(NoteRouter)
 app.include_router(FilesRouter)
 app.include_router(CalendarRouter)
+app.include_router(IndexationRouter)
 
 @app.on_event('startup')
 @repeat_every(seconds=60 * 10)

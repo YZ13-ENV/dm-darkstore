@@ -10,6 +10,12 @@ s3 = client(
     endpoint_url=os.getenv('STORAGE_ENDPOINT')
 )
 
+async def readFile(link: str):
+    obj = s3.Object(Bucket='dark-material', Key=link)
+    res = obj.get()
+    data = res['Body'].read()
+    print(res)
+
 async def uploadFileFromString(file: bytes, link: str):
     res = s3.put_object(Bucket='dark-material', Key=link, Body=file, StorageClass='STANDARD')
     return res
