@@ -5,4 +5,5 @@ uvicorn[standard]
 gunicorn[standard]
 firebase-admin
 aioredis
+aiofiles
 boto3
