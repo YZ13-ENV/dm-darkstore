@@ -1,7 +1,7 @@
 from typing import Optional
-from database.shot import addComment, addOrRemoveLike, addView, getAllUsersShots, getShots, getDrafts, removeComment, updateDraft, publishDraft, getShot, updateShot, getUpgradedUsersShots, getDeleteShot, getChunkedShots
+from database.shot import addComment, addOrRemoveLike, addView, getShots, getDrafts, patchComment, removeComment, updateDraft, publishDraft, getShot, updateShot, getUpgradedUsersShots, getDeleteShot, getChunkedShots
 from schemas.draft import DraftToPublish
-from schemas.shot import NewCommentBlock, ShotData, ShotDataForUpload
+from schemas.shot import CommentBlock, NewCommentBlock, ShotData, ShotDataForUpload
 
 class ShotService():
     def __init__(self, userId: Optional[str] ):
@@ -60,10 +60,6 @@ class ShotService():
         isDone = await publishDraft(userId=self.__userId, draftId=draftId, draft=draft)
         return isDone
 
-    async def getAllUsersShots(self, order: str):
-        shots = await getAllUsersShots(order=order, userId=self.__userId)
-        return shots
-    
     async def getAllUpgradedUsersShots(self, order: str):
         shots = await getUpgradedUsersShots(order=order, userId=self.__userId)
         return shots
@@ -79,6 +75,12 @@ class ShotService():
         if self.__userId:
             isAdded = await addComment(userId=self.__userId, shotId=shotId, comment=comment)
             return isAdded
+        else: return False
+
+    async def patchComment(self, shotId: str, comment: CommentBlock):
+        if self.__userId:
+            isPatched = await patchComment(userId=self.__userId, shotId=shotId, comment=comment)
+            return isPatched
         else: return False
 
     async def removeComment(self, shotId: str, commentId: str):

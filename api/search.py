@@ -20,17 +20,21 @@ async def globalSearch(userId: str, q: str):
 
     notes = await getSearchedNotes(userId=userId, q=q.lower())
     notesQueries = await createNoteSearchQuery(userId=userId, list=notes)
-    allQueries = [*notesQueries, *eventQueries, *shotsQueries, ]
+    allQueries = [ *notesQueries, *eventQueries, *shotsQueries ]
+
     return allQueries
 
 @router.get('/shots')
-async def searchShots(q: str, order: str='popular'):
-    shots: List[DocShotData] = await getAllShots()
+async def searchShots(q: str, order: str='popular', skip: Optional[int]=0):
+    shots: List[DocShotData] = await getAllShots(skip=skip)
     res_shots = []
 
     for shot in shots:
         title: str = shot.get('title')
+        tags: List[str] = shot.get('tags')
         if q in title.lower():
+            res_shots.append(shot)
+        elif q in tags:
             res_shots.append(shot)
         else:
             for block in shot['blocks']:

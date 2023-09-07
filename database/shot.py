@@ -2,12 +2,11 @@ import httpx
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from database.files import removeFolder
-from database.user import getFollows, getUsersIdList
+from database.user import getFollows
 from firebase import db
 from helpers.generators import id_generator
 from schemas.draft import DraftToPublish
 from schemas.shot import CommentBlock, ShotData, ShotDataForUpload, NewCommentBlock
-from host import host
 def getCreatedDate(el):
     return el['createdAt']
 
@@ -208,8 +207,8 @@ async def getShots(userId: str, asDoc: bool, order: Optional[str]='popular', lim
     #             shotsList.append(shotData)
 
     # return shotsList
-async def getAllShots():
-    group = db.collection_group('shots')
+async def getAllShots(skip: Optional[int]=0):
+    group = db.collection_group('shots').limit(16).offset(skip)
     shotsSnaps = await group.where('isDraft', '==', False).get()
     shotsList = []
     for shot in shotsSnaps:
@@ -274,34 +273,6 @@ async def getUpgradedUsersShots(order: str='popular', userId: Optional[str]=None
     
     return shotsList
 
-# popular <-> following <-> new
-async def getAllUsersShots(order: str='popular', userId: Optional[str]=None):
-    userIds = getUsersIdList()
-    shotsList = []
-    
-    for user in userIds:
-        shots = await getShots(user, True)
-        for shot in shots:
-            shotsList.append(shot)
-
-    if (order == 'popular'):
-        shotsList.sort(key=getViews, reverse=True)
-        return shotsList
-    if (order == 'following' and userId):
-        followingShot = []
-        follows = await getFollows(userId=userId)
-        for follow in follows:
-            shots = await getShots(userId=follow, asDoc=True)
-            for shot in shots:
-                followingShot.append(shot)
-        followingShot.sort(key=getCreatedDate, reverse=True)
-        return followingShot
-    elif (order == 'new'):
-        shotsList.sort(key=getCreatedDate, reverse=True)
-        return shotsList
-    
-    return shotsList
-
 async def getShot(userId: str, shotId: str):
     shotRef = db.collection('users').document(userId).collection('shots').document(shotId)
     shotSnap = await shotRef.get()
@@ -341,6 +312,9 @@ async def removeComment(userId: str, shotId: str, commentId: str):
         return True
     except:
         return False
+
+async def patchComment(userId: str, shotId: str, comment: CommentBlock):
+    pass
 
 async def addComment(userId: str, shotId: str, comment: NewCommentBlock):
         try:

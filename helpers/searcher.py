@@ -36,15 +36,16 @@ def shotSearcher(q: str, shots: List):
     res_shots = []
 
     for shot in shots:
-        title: str = shot.get('title')
-        if q in title.lower():
-            res_shots.append(shot)
-        else:
-            for block in shot['blocks']:
-                text: Optional[str] = block.get('text')
-                if text != None:
-                    if q in text.lower():
-                        res_shots.append(shot)
+        if not shot in res_shots:
+            title: str = shot.get('title')
+            if q in title.lower():
+                res_shots.append(shot)
+            else:
+                for block in shot['blocks']:
+                    text: Optional[str] = block.get('text')
+                    if text != None:
+                        if q in text.lower():
+                            res_shots.append(shot)
 
     return res_shots
 

@@ -24,14 +24,7 @@ async def getOnlyDrafts(userId: str, asDoc: bool=True):
     drafts = await service.getDrafts(asDoc=asDoc)
     return drafts
 
-@router.get('/allShots/{order}')
-@cache(expire=60)
-async def getPopularFromAllShots(order: Optional[str]='popular', userId: Optional[str]=None):
-    service = ShotService(userId=userId)
-    shots = await service.getAllUsersShots(order=order)
-    return shots
-
-@router.get('/v2/allShots/{order}')
+@router.get('/v2/allShots/{order}', deprecated=True)
 @cache(expire=60)
 async def getPopularFromAllShots(order: Optional[str]='popular', userId: Optional[str]=None):
     service = ShotService(userId=userId)
@@ -93,13 +86,19 @@ async def getShot(userId: str, shotId: str):
     shot = await service.getShot(shotId=shotId)
     return shot
 
-@router.post('/addComment')
+@router.post('/comment')
 async def addComment(userId: str, shotId: str, comment: NewCommentBlock):
     service = ShotService(userId=userId)
     isAdded = await service.addComment(shotId=shotId, comment=comment)
     return isAdded
 
-@router.delete('/removeComment')
+@router.patch('/comment')
+async def patchComment(userId: str, shotId: str, comment: CommentBlock):
+    service = ShotService(userId=userId)
+    isPatched = await service.patchComment(shotId=shotId, comment=comment)
+    return isPatched
+
+@router.delete('/comment')
 async def removeComment(userId: str, shotId: str, commentId: str):
     service = ShotService(userId=userId)
     isAdded = await service.removeComment(shotId=shotId, commentId=commentId)

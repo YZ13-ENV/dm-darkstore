@@ -6,4 +6,5 @@ gunicorn[standard]
 firebase-admin
 aioredis
 aiofiles
+asyncio
 boto3
