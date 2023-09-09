@@ -220,7 +220,8 @@ async def getAllShots(skip: Optional[int]=0):
 
 async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip: Optional[int]=0):
     group = db.collection_group('shots')
-    shotsSnapsQuery = group.where('isDraft', '==', False).limit(16).offset(skip)
+    order_by = 'views' if order == 'popular' else 'createdAt'
+    shotsSnapsQuery = group.where('isDraft', '==', False).order_by(order_by, 'DESCENDING').limit(16).offset(skip)
     shotsSnaps = await shotsSnapsQuery.get()
     shotsList = []
     for shot in shotsSnaps:
@@ -246,7 +247,7 @@ async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip
     
     return shotsList
 
-async def getUpgradedUsersShots(order: str='popular', userId: Optional[str]=None):
+async def getUpgradedUsersShots(order: Optional[str]='popular', userId: Optional[str]=None):
     group = db.collection_group('shots')
     shotsSnaps = await group.where('isDraft', '==', False).get()
     shotsList = []

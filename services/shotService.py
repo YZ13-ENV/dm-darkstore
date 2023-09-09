@@ -46,21 +46,26 @@ class ShotService():
             return None
     
     async def updateShot(self, shotId: str, shot: ShotData):
-        # try:
-            isComplete = await updateShot(self.__userId, shotId, shot)
-            return isComplete
-        # except: 
-            # return False
-
+            if self.__userId:
+                isComplete = await updateShot(self.__userId, shotId, shot)
+                return isComplete
+            else:
+                return False
     async def updateDraft(self, draftId: str, draft: ShotDataForUpload):
-        isComplete = await updateDraft(userId=self.__userId, draftId=draftId, draft=draft)
-        return isComplete
+        if self.__userId:
+            isComplete = await updateDraft(userId=self.__userId, draftId=draftId, draft=draft)
+            return isComplete
+        else:
+            return False
 
     async def publishDraft(self, draftId: str, draft: DraftToPublish):
-        isDone = await publishDraft(userId=self.__userId, draftId=draftId, draft=draft)
-        return isDone
+        if self.__userId:
+            isDone = await publishDraft(userId=self.__userId, draftId=draftId, draft=draft)
+            return isDone
+        else:
+            return False
 
-    async def getAllUpgradedUsersShots(self, order: str):
+    async def getAllUpgradedUsersShots(self, order: Optional[str]):
         shots = await getUpgradedUsersShots(order=order, userId=self.__userId)
         return shots
 

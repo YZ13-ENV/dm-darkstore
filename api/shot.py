@@ -47,7 +47,6 @@ async def getAllShotCount():
 async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip: Optional[int]=0):
     service = ShotService(userId=userId)
     shots = await service.getChunk(order=order, skip=skip)
-
     return shots
 
 @router.post('/updateShot')
