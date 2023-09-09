@@ -229,23 +229,22 @@ async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip
         shotDict.update({ 'doc_id': shot.id })
         shotsList.append(shotDict)
 
-    if (order == 'popular'):
-        shotsList.sort(key=getViews, reverse=True)
-        return shotsList
-    if (order == 'following' and userId):
-        followingShot = []
-        follows = await getFollows(userId=userId)
-        for follow in follows:
-            shots = await getShots(userId=follow, asDoc=True)
-            for shot in shots:
-                followingShot.append(shot)
-        followingShot.sort(key=getCreatedDate, reverse=True)
-        return followingShot
-    elif (order == 'new'):
-        shotsList.sort(key=getCreatedDate, reverse=True)
-        return shotsList
-    
     return shotsList
+
+async def getUserChunkedShots(userId: str, order: str='popular', skip: Optional[int]=0):
+    userShotsRef = db.collection('users').document(userId).collection('shots')
+    order_by = 'views' if order == 'popular' else 'createdAt'
+    shotsSnapsQuery = userShotsRef.where('isDraft', '==', False).order_by(order_by, 'DESCENDING').limit(16).offset(skip)
+    shotsSnaps = await shotsSnapsQuery.get()
+    shotsList = []
+    
+    for shot in shotsSnaps:
+        shotDict = shot.to_dict()
+        shotDict.update({ 'doc_id': shot.id })
+        shotsList.append(shotDict)
+
+    return shotsList
+
 
 async def getUpgradedUsersShots(order: Optional[str]='popular', userId: Optional[str]=None):
     group = db.collection_group('shots')

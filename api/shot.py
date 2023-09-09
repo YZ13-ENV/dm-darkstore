@@ -24,13 +24,6 @@ async def getOnlyDrafts(userId: str, asDoc: bool=True):
     drafts = await service.getDrafts(asDoc=asDoc)
     return drafts
 
-@router.get('/v2/allShots/{order}', deprecated=True)
-@cache(expire=60)
-async def getPopularFromAllShots(order: Optional[str]='popular', userId: Optional[str]=None):
-    service = ShotService(userId=userId)
-    shots = await service.getAllUpgradedUsersShots(order=order)
-    return shots
-
 @router.get('/allShotsCount')
 async def getAllShotCount():
     group = db.collection_group('shots')
@@ -42,6 +35,18 @@ async def getAllShotCount():
         list.append(shotDict)
     return len(list)
 
+@router.get('/userShotsCount/{userId}')
+async def getAllUserShotsCount(userId: str):
+    userShotsRef = db.collection('users').document(userId).collection('shots')
+    shots = await userShotsRef.get()
+    count = len(shots)
+    return count
+
+@router.get('/v2/chunkedUserShots/{order}')
+async def getUserChunkedShots(userId: str, order: str='popular', skip: Optional[int]=0):
+    service = ShotService(userId=userId)
+    shots = await service.getUserChunk(order=order, skip=skip)
+    return shots
 
 @router.get('/v2/chunkedAllShots/{order}')
 async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip: Optional[int]=0):
