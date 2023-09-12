@@ -207,8 +207,9 @@ async def getShots(userId: str, asDoc: bool, order: Optional[str]='popular', lim
     #             shotsList.append(shotData)
 
     # return shotsList
-async def getAllShots(skip: Optional[int]=0):
-    group = db.collection_group('shots').limit(16).offset(skip)
+async def getAllShots(skip: Optional[int]=0, order: str='popular'):
+    order_by = 'views' if order == 'popular' else 'createdAt'
+    group = db.collection_group('shots').order_by(order_by, 'DESCENDING').limit(16).offset(skip)
     shotsSnaps = await group.where('isDraft', '==', False).get()
     shotsList = []
     for shot in shotsSnaps:

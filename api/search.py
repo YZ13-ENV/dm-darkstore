@@ -26,27 +26,19 @@ async def globalSearch(userId: str, q: str):
 
 @router.get('/shots')
 async def searchShots(q: str, order: str='popular', skip: Optional[int]=0):
-    shots: List[DocShotData] = await getAllShots(skip=skip)
+    shots: List[DocShotData] = await getAllShots(skip=skip, order=order)
     res_shots = []
 
     for shot in shots:
         title: str = shot.get('title')
         tags: List[str] = shot.get('tags')
-        if q in title.lower():
-            res_shots.append(shot)
-        elif q in tags:
+        if (q in title.lower()) or (q in tags):
             res_shots.append(shot)
         else:
             for block in shot['blocks']:
                 text: Optional[str] = block.get('text')
-                if text != None:
-                    if q in text.lower():
-                        res_shots.append(shot)
-
-    if (order == 'popular'):
-        res_shots.sort(key=getViews, reverse=True)
-            
-    if (order == 'new'):
-        res_shots.sort(key=getCreatedDate, reverse=True)
-        
-    return res_shots
+                if text != None and q in text.lower():
+                    res_shots.append(shot)
+    res = []
+    [res.append(x) for x in res_shots if x not in res]
+    return res

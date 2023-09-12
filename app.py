@@ -18,8 +18,7 @@ from dotenv import load_dotenv
 import os
 
 # app = FastAPI(docs_url=None, redoc_url=None, debug=True)
-app = FastAPI(debug=True)
-
+app = FastAPI()
 
 origins = [
     'https://auth.darkmaterial.space',
@@ -27,7 +26,7 @@ origins = [
     'https://notes.darkmaterial.space',
     'https://calendar.darkmaterial.space',
     'https://darkmaterial.space',
-    'http://localhost:3000'
+    # 'http://localhost:3000'
 ]
 
 app.add_middleware(
@@ -47,6 +46,7 @@ app.include_router(NoteRouter)
 app.include_router(FilesRouter)
 app.include_router(CalendarRouter)
 app.include_router(IndexationRouter)
+
 
 @app.on_event('startup')
 @repeat_every(seconds=60 * 10)
