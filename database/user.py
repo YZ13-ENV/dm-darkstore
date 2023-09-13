@@ -15,15 +15,18 @@ def getUsersIdList():
 async def isInFollowList(userId: str, followId: str):
     userRef = db.collection('users').document(userId)
     user = await userRef.get()
-    userDict = user.to_dict()
-    if not userDict.get('follows'):
-        return False
-    else: 
-        follows = userDict.get('follows')
-        if followId in follows:
-            return True
-        else:
+    if user.exists:
+        userDict = user.to_dict()
+        if not userDict.get('follows'):
             return False
+        else: 
+            follows = userDict.get('follows')
+            if followId in follows:
+                return True
+            else:
+                return False
+    else:
+        return False
         
 async def setPlusSubscription(userId: str, subscriptionStatus: bool):
     if userId:
@@ -56,22 +59,28 @@ async def stopFollow(userId: str, followId: str):
 async def startFollow(userId: str, followId: str):
     userRef = db.collection('users').document(userId)
     user = await userRef.get()
-    userDict = user.to_dict()
-    if not userDict.get('follows'):
-        follows: List[str] = [followId]
-        field_updates = {
-            'follows': follows
-        }
-        await userRef.update(field_updates=field_updates)
-        return True
+    follows: List[str] = [followId]
+    if user.exists:
+        userDict = user.to_dict()
+        if not userDict.get('follows'):
+            field_updates = {
+                'follows': follows
+            }
+            await userRef.update(field_updates=field_updates)
+            return True
+        else:
+            follows: List[str] = userDict.get('follows')
+            follows.append(followId)
+            field_updates = {
+                'follows': follows
+            }
+            await userRef.update(field_updates=field_updates)
+            return True
     else:
-        follows: List[str] = userDict.get('follows')
-        follows.append(followId)
         field_updates = {
             'follows': follows
         }
-        await userRef.update(field_updates=field_updates)
-        return True
+        await userRef.create(document_data=field_updates)
 
 async def updateUser(userId: str, displayName: Optional[str], photoUrl: Optional[str]):
     if (displayName and not photoUrl):

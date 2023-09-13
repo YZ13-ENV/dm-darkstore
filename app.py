@@ -26,7 +26,7 @@ origins = [
     'https://notes.darkmaterial.space',
     'https://calendar.darkmaterial.space',
     'https://darkmaterial.space',
-    # 'http://localhost:3000'
+    'http://localhost:3000'
 ]
 
 app.add_middleware(
