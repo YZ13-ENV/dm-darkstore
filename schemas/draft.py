@@ -16,6 +16,7 @@ class DraftShotData(BaseModel):
 
 class DraftToPublish(BaseModel):
     isDraft: bool
+    enableMdSyntax: bool
     authorId: str
     title: str
     rootBlock: MediaBlock
