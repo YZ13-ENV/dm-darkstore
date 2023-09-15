@@ -137,8 +137,9 @@ async def getDrafts(userId: str, asDoc: bool):
 
 
 async def getShots(userId: str, asDoc: bool, order: Optional[str]='popular', limit: Optional[int] = None, exclude: Optional[str] = None):
+    order_by = 'views' if order == 'popular' else 'createdAt'
     if not limit:
-        shotsRef = db.collection('users').document(userId).collection('shots').where('isDraft', '==', False)
+        shotsRef = db.collection('users').document(userId).collection('shots').where('isDraft', '==', False).order_by(order_by, 'DESCENDING')
         shots = await shotsRef.get()
         shotsList = []
         for shot in shots:
@@ -159,13 +160,9 @@ async def getShots(userId: str, asDoc: bool, order: Optional[str]='popular', lim
                         shotsList.append(shotData)
                     if (not asDoc):
                         shotsList.append(shotData)
-        if (order == 'popular'):
-            shotsList.sort(key=getViews, reverse=True)
-        elif (order == 'new'):
-            shotsList.sort(key=getCreatedDate, reverse=True)
         return shotsList
     else:
-        shotsRef = db.collection('users').document(userId).collection('shots').where('isDraft', '==', False).order_by('createdAt', 'DESCENDING')
+        shotsRef = db.collection('users').document(userId).collection('shots').where('isDraft', '==', False).order_by(order_by, 'DESCENDING')
         shots = await shotsRef.get()
         shotsList = []
         for shot in shots:
@@ -186,27 +183,7 @@ async def getShots(userId: str, asDoc: bool, order: Optional[str]='popular', lim
                         shotsList.append(shotData)
                     if (not asDoc):
                         shotsList.append(shotData)
-
-        if (order == 'popular'):
-            shotsList.sort(key=getViews, reverse=True)
-        elif (order == 'new'):
-            shotsList.sort(key=getCreatedDate, reverse=True)
-
         return shotsList[0:limit]
-
-    # shots = db.collection('users').document(userId).collection('shots').list_documents()
-    # shotsList = []
-    # async for shot in shots:
-    #     data = await shot.get()
-    #     shotData: Dict[str, Any] = data.to_dict()
-    #     if shotData.get('isDraft') == False:
-    #         if (asDoc):
-    #             shotData['doc_id'] = data.id
-    #             shotsList.append(shotData)
-    #         if (not asDoc):
-    #             shotsList.append(shotData)
-
-    # return shotsList
 async def getAllShots(skip: Optional[int]=0, order: str='popular'):
     order_by = 'views' if order == 'popular' else 'createdAt'
     group = db.collection_group('shots').order_by(order_by, 'DESCENDING').limit(16).offset(skip)
@@ -249,16 +226,14 @@ async def getUserChunkedShots(userId: str, order: str='popular', skip: Optional[
 
 async def getUpgradedUsersShots(order: Optional[str]='popular', userId: Optional[str]=None):
     group = db.collection_group('shots')
-    shotsSnaps = await group.where('isDraft', '==', False).get()
+    order_by = 'views' if order == 'popular' else 'createdAt'
+    shotsSnaps = await group.where('isDraft', '==', False).order_by(order_by, 'DESCENDING').get()
     shotsList = []
     for shot in shotsSnaps:
         shotDict = shot.to_dict()
         shotDict.update({ 'doc_id': shot.id })
         shotsList.append(shotDict)
 
-    if (order == 'popular'):
-        shotsList.sort(key=getViews, reverse=True)
-        return shotsList
     if (order == 'following' and userId):
         followingShot = []
         follows = await getFollows(userId=userId)
@@ -268,9 +243,6 @@ async def getUpgradedUsersShots(order: Optional[str]='popular', userId: Optional
                 followingShot.append(shot)
         followingShot.sort(key=getCreatedDate, reverse=True)
         return followingShot
-    elif (order == 'new'):
-        shotsList.sort(key=getCreatedDate, reverse=True)
-        return shotsList
     
     return shotsList
 

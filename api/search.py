@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from database.shot import getAllShots, getCreatedDate, getViews
 from helpers.searcher import createEventSearchQuery, createNoteSearchQuery, createShotSearchQuery, divide_chunks, getSearchedEvents, getSearchedNotes, getSearchedShots, shotSearcher
 from schemas.shot import DocShotData
+from fastapi_cache.decorator import cache
 
 router = APIRouter(
     prefix='/search',
@@ -10,6 +11,7 @@ router = APIRouter(
 )
 
 @router.get('/global')
+@cache(expire=60)
 async def globalSearch(userId: str, q: str):
     shots = await getSearchedShots(userId=userId, q=q.lower())
     chunkedShots = divide_chunks(shots, 3)
@@ -25,20 +27,8 @@ async def globalSearch(userId: str, q: str):
     return allQueries
 
 @router.get('/shots')
+@cache(expire=60)
 async def searchShots(q: str, order: str='popular', skip: Optional[int]=0):
     shots: List[DocShotData] = await getAllShots(skip=skip, order=order)
-    res_shots = []
-
-    for shot in shots:
-        title: str = shot.get('title')
-        tags: List[str] = shot.get('tags')
-        if (q in title.lower()) or (q in tags):
-            res_shots.append(shot)
-        else:
-            for block in shot['blocks']:
-                text: Optional[str] = block.get('text')
-                if text != None and q in text.lower():
-                    res_shots.append(shot)
-    res = []
-    [res.append(x) for x in res_shots if x not in res]
-    return res
+    res_shots = shotSearcher(q=q, shots=shots)
+    return res_shots

@@ -25,6 +25,7 @@ async def getOnlyDrafts(userId: str, asDoc: bool=True):
     return drafts
 
 @router.get('/allShotsCount')
+@cache(expire=60)
 async def getAllShotCount():
     group = db.collection_group('shots')
     shotsSnapsQuery = group.where('isDraft', '==', False)
@@ -36,6 +37,7 @@ async def getAllShotCount():
     return len(list)
 
 @router.get('/userShotsCount/{userId}')
+@cache(expire=60)
 async def getAllUserShotsCount(userId: str):
     userShotsRef = db.collection('users').document(userId).collection('shots')
     shots = await userShotsRef.get()
@@ -43,12 +45,14 @@ async def getAllUserShotsCount(userId: str):
     return count
 
 @router.get('/v2/chunkedUserShots/{order}')
+@cache(expire=60)
 async def getUserChunkedShots(userId: str, order: str='popular', skip: Optional[int]=0):
     service = ShotService(userId=userId)
     shots = await service.getUserChunk(order=order, skip=skip)
     return shots
 
 @router.get('/v2/chunkedAllShots/{order}')
+@cache(expire=60)
 async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip: Optional[int]=0):
     service = ShotService(userId=userId)
     shots = await service.getChunk(order=order, skip=skip)
@@ -85,6 +89,7 @@ async def publishDraft(userId: str, draftId: str, draft: DraftToPublish):
     return isDone
 
 @router.get('/shot')
+@cache(expire=60)
 async def getShot(userId: str, shotId: str):
     service = ShotService(userId=userId)
     shot = await service.getShot(shotId=shotId)

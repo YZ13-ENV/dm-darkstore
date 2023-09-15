@@ -38,7 +38,10 @@ def shotSearcher(q: str, shots: List):
     for shot in shots:
         if not shot in res_shots:
             title: str = shot.get('title')
+            tags: List[str] = shot.get('tags')
             if q in title.lower():
+                res_shots.append(shot)
+            elif q in tags:
                 res_shots.append(shot)
             else:
                 for block in shot['blocks']:
