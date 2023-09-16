@@ -55,7 +55,8 @@ async def postThumbnail(link: str, file: UploadFile):
             fps = reader.get_meta_data()['fps']
 
             with tempfile.NamedTemporaryFile(suffix=".mp4") as output_temp_file:
-                writer = imageio.get_writer(output_temp_file.name, fps=fps)
+                kargs = { 'macro_block_size': None }
+                writer = imageio.get_writer(output_temp_file.name, fps=fps, **kargs)
 
                 for i, frame in enumerate(reader):
                     frame = cv2.resize(frame, size_defined)
