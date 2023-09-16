@@ -48,38 +48,36 @@ async def postThumbnail(link: str, file: UploadFile):
     size_defined = 400, 300
     if file.filename.endswith('.mp4'):
         file_bytes = await file.read()
-        with tempfile.NamedTemporaryFile(suffix=".mp4") as temp_file:
-            temp_file.write(file_bytes)
-            temp_file.seek(0)
-            reader = imageio.get_reader(temp_file.name)
+        with tempfile.NamedTemporaryFile(suffix=".mp4") as output_temp_file:
+            output_temp_file.write(file_bytes)
+            output_temp_file.seek(0)
+            reader = imageio.get_reader(output_temp_file.name)
             fps = reader.get_meta_data()['fps']
+            
+            kargs = { 'macro_block_size': None }
+            writer = imageio.get_writer(output_temp_file.name, fps=fps, **kargs)
 
-            with tempfile.NamedTemporaryFile(suffix=".mp4") as output_temp_file:
-                kargs = { 'macro_block_size': None }
-                writer = imageio.get_writer(output_temp_file.name, fps=fps, **kargs)
+            for i, frame in enumerate(reader):
+                frame = cv2.resize(frame, size_defined)
+                writer.append_data(frame)
+            writer.close()
 
-                for i, frame in enumerate(reader):
-                    frame = cv2.resize(frame, size_defined)
-                    writer.append_data(frame)
-                writer.close()
-
-                output_temp_file.seek(0)
-                video_bytes = output_temp_file.read()
-                await uploadFileFromString(file=video_bytes, link=db_link)
-                return db_link
+            output_temp_file.seek(0)
+            video_bytes = output_temp_file.read()
+            await uploadFileFromString(file=video_bytes, link=db_link)
+            return db_link
     else:
         file_bytes = await file.read()
-        with tempfile.NamedTemporaryFile(suffix=".png") as temp_file:
-            temp_file.write(file_bytes)
-            temp_file.seek(0)
-            image = imageio.imread(temp_file.name)
+        with tempfile.NamedTemporaryFile(suffix=".png") as output_temp_file:
+            output_temp_file.write(file_bytes)
+            output_temp_file.seek(0)
+            image = imageio.imread(output_temp_file.name)
             image = cv2.resize(image, size_defined)
-            with tempfile.NamedTemporaryFile(suffix=".png") as output_temp_file:
-                imageio.imsave(output_temp_file.name, image)
-                output_temp_file.seek(0)
-                image_bytes = output_temp_file.read()
-                await uploadFileFromString(file=image_bytes, link=db_link)
-                return db_link
+            imageio.imsave(output_temp_file.name, image)
+            output_temp_file.seek(0)
+            image_bytes = output_temp_file.read()
+            await uploadFileFromString(file=image_bytes, link=db_link)
+            return db_link
     
 @router.delete('/file')
 async def deleteFile(link: str):
