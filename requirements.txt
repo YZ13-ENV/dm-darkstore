@@ -8,3 +8,7 @@ aioredis
 aiofiles
 asyncio
 boto3
+Pillow
+imageio
+imageio[ffmpeg]
+imageio[pyav]
