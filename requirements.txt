@@ -9,7 +9,8 @@ aiofiles
 asyncio
 boto3
 Pillow
+numpy
 opencv-python
-imageio
 imageio[ffmpeg]
 imageio[pyav]
+imageio

@@ -4,8 +4,6 @@ from fastapi import APIRouter, UploadFile
 from database.files import removeByLink, uploadFileFromString
 from uuid import uuid4 as v4
 import imageio
-import imageio
-from PIL import Image
 import cv2
 import tempfile
 
