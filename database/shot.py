@@ -102,7 +102,11 @@ async def addOrRemoveLike(shotAuthorId: str, shotId: str, uid: str):
         return 'removed'
 
     else:
-        likes.append(uid)
+        likeDict = {
+            'uid': uid,
+            'createdAt': datetime.now().timestamp()
+        }
+        likes.append(likeDict)
         shotDict.update({'likes': likes})
         await shotRef.update(shotDict)
         return 'added'
@@ -112,7 +116,11 @@ async def addView(shotAuthorId: str, shotId: str, uid: str):
     shotSnap = await shotRef.get()
     shotDict: Dict[str, Any] = shotSnap.to_dict()
     views: List[str] = shotDict.get('views')
-    views.append(uid)
+    likeDict = {
+        'uid': uid,
+        'createdAt': datetime.now().timestamp()
+    }
+    views.append(likeDict)
     shotDict.update({'views': views})
     await shotRef.update(shotDict)
     return 'added'

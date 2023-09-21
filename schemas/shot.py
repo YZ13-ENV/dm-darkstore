@@ -74,6 +74,21 @@ class ThumbnailThree(BaseModel):
     mobile: Thumbnail
     thumbnail: Thumbnail
 
+    class Config: 
+        orm_mode = True
+
+class ViewWithTimestamp(BaseModel):
+    uid: str
+    createdAt: Union[float, int]
+    class Config: 
+        orm_mode = True
+
+class LikeWithTimestamp(BaseModel):
+    uid: str
+    createdAt: Union[float, int]
+    class Config: 
+        orm_mode = True
+
 class ShotData(BaseModel):
     isDraft: bool
     authorId: str
@@ -81,8 +96,8 @@ class ShotData(BaseModel):
     rootBlock: MediaBlock
     blocks: List[Union[TextBlock, ShotGridBlock, MediaBlock]]
     createdAt: Union[int, float]
-    likes: List[str]
-    views: List[str]
+    likes: List[Union[str, LikeWithTimestamp]]
+    views: List[Union[str, LikeWithTimestamp]]
     comments: List[CommentBlock]
     needFeedback: bool
     tags: List[str]
