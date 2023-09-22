@@ -5,6 +5,7 @@ from services.shotService import ShotService
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 from firebase import db
+
 router = APIRouter(
     prefix='/shots',
     tags=['Работы']
