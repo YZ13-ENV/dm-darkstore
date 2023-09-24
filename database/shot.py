@@ -206,16 +206,17 @@ async def getAllShots(skip: Optional[int]=0, order: str='popular'):
 
 async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip: Optional[int]=0):
     group = db.collection_group('shots')
-    order_by = 'views' if order == 'popular' else 'createdAt'
-    shotsSnapsQuery = group.where('isDraft', '==', False).order_by(order_by, 'ASCENDING').limit(16).offset(skip)
+    order_by = getViews if order == 'popular' else getCreatedDate
+    shotsSnapsQuery = group.where('isDraft', '==', False)
     shotsSnaps = await shotsSnapsQuery.get()
     shotsList = []
     for shot in shotsSnaps:
         shotDict = shot.to_dict()
+        # testDict = { 'doc_id': shot.id, 'views': shotDict.get('views') }
         shotDict.update({ 'doc_id': shot.id })
         shotsList.append(shotDict)
-
-    return shotsList
+    shotsList.sort(key=order_by, reverse=True)
+    return shotsList[skip:skip+16]
 
 async def getUserChunkedShots(userId: str, order: str='popular', skip: Optional[int]=0):
     userShotsRef = db.collection('users').document(userId).collection('shots')
