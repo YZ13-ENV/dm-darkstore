@@ -1,4 +1,4 @@
-import httpx
+from firebase_admin import firestore
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from database.files import removeFolder
@@ -92,37 +92,27 @@ async def addOrRemoveLike(shotAuthorId: str, shotId: str, uid: str):
     shotSnap = await shotRef.get()
     shotDict: Dict[str, Any] = shotSnap.to_dict()
     likes: List[str] = shotDict.get('likes')
-    if (uid in likes):
-        filteredLikes = []
-        for likerUID in likes:
-            if likerUID != uid:
-                filteredLikes.append(likerUID)
-        shotDict.update({'likes': filteredLikes})
-        await shotRef.update(shotDict)
+    if uid in likes:
+        filteredLikes = [likerUID for likerUID in likes if likerUID != uid]
+        await shotRef.update({'likes': filteredLikes})
         return 'removed'
-
     else:
         likeDict = {
             'uid': uid,
             'createdAt': datetime.now().timestamp()
         }
         likes.append(likeDict)
-        shotDict.update({'likes': likes})
-        await shotRef.update(shotDict)
+        await shotRef.update({'likes': likes})
         return 'added'
 
 async def addView(shotAuthorId: str, shotId: str, uid: str):
     shotRef = db.collection('users').document(shotAuthorId).collection('shots').document(shotId)
-    shotSnap = await shotRef.get()
-    shotDict: Dict[str, Any] = shotSnap.to_dict()
-    views: List[str] = shotDict.get('views')
-    likeDict = {
-        'uid': uid,
-        'createdAt': datetime.now().timestamp()
-    }
-    views.append(likeDict)
-    shotDict.update({'views': views})
-    await shotRef.update(shotDict)
+    await shotRef.update({
+        'views': firestore.ArrayUnion([{
+            'uid': uid,
+            'createdAt': datetime.now().timestamp()
+        }])
+    })
     return 'added'
 
 
@@ -146,63 +136,46 @@ async def getDrafts(userId: str, asDoc: bool):
 
 async def getShots(userId: str, asDoc: bool, order: Optional[str]='popular', limit: Optional[int] = None, exclude: Optional[str] = None):
     order_by = 'views' if order == 'popular' else 'createdAt'
-    if not limit:
-        shotsRef = db.collection('users').document(userId).collection('shots').where('isDraft', '==', False).order_by(order_by, 'DESCENDING')
-        shots = await shotsRef.get()
-        shotsList = []
-        for shot in shots:
-            if exclude:
-                if shot.id != exclude:
-                    shotData: Dict[str, Any] = shot.to_dict()
-                    if shotData.get('isDraft') == False:
-                        if (asDoc):
-                            shotData['doc_id'] = shot.id
-                            shotsList.append(shotData)
-                        if (not asDoc):
-                            shotsList.append(shotData)
-            else:
-                shotData: Dict[str, Any] = shot.to_dict()
-                if shotData.get('isDraft') == False:
-                    if (asDoc):
-                        shotData['doc_id'] = shot.id
-                        shotsList.append(shotData)
-                    if (not asDoc):
-                        shotsList.append(shotData)
-        return shotsList
-    else:
-        shotsRef = db.collection('users').document(userId).collection('shots').where('isDraft', '==', False).order_by(order_by, 'DESCENDING')
-        shots = await shotsRef.get()
-        shotsList = []
-        for shot in shots:
-            if exclude:
-                if shot.id != exclude:
-                    shotData: Dict[str, Any] = shot.to_dict()
-                    if shotData.get('isDraft') == False:
-                        if (asDoc):
-                            shotData['doc_id'] = shot.id
-                            shotsList.append(shotData)
-                        if (not asDoc):
-                            shotsList.append(shotData)
-            else:
-                shotData: Dict[str, Any] = shot.to_dict()
-                if shotData.get('isDraft') == False:
-                    if (asDoc):
-                        shotData['doc_id'] = shot.id
-                        shotsList.append(shotData)
-                    if (not asDoc):
-                        shotsList.append(shotData)
-        return shotsList[0:limit]
-async def getAllShots(skip: Optional[int]=0, order: str='popular'):
-    order_by = 'views' if order == 'popular' else 'createdAt'
-    group = db.collection_group('shots').order_by(order_by, 'ASCENDING').limit(16).offset(skip)
-    shotsSnaps = await group.where('isDraft', '==', False).get()
+    shotsRef = db.collection('users').document(userId).collection('shots').where('isDraft', '==', False).order_by(order_by, 'DESCENDING')
+    
+    shots = await shotsRef.get()
     shotsList = []
-    for shot in shotsSnaps:
-        shotDict = shot.to_dict()
-        shotDict.update({ 'doc_id': shot.id })
-        shotsList.append(shotDict)
-
+    
+    for shot in shots:
+        shot.to_dict()
+        shot['doc_id'] = shot.id
+    
+    if limit:
+        return shotsList[0:limit]
     return shotsList
+
+async def getShotById(shotId: str):
+    shots = await getAllShots()
+    targetShot = None
+    for shot in shots:
+        if shot['doc_id'] == shotId:
+            targetShot = shot
+
+    return targetShot
+
+async def getAllShots():
+    shotsRef = db.collection_group('shots').where('isDraft', '==', False)
+    shotsSnaps = await shotsRef.get()
+    shotsList = [shot.to_dict() for shot in shotsSnaps]
+    
+    for shot in shotsList:
+        shot['doc_id'] = shot.id
+    
+    return shotsList
+
+async def getShotById(shotId: str):
+    shots = await getAllShots()
+    targetShot = None
+    for shot in shots:
+        if shot['doc_id'] == shotId:
+            targetShot = shot
+
+    return targetShot
 
 async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip: Optional[int]=0):
     group = db.collection_group('shots')
@@ -212,7 +185,6 @@ async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip
     shotsList = []
     for shot in shotsSnaps:
         shotDict = shot.to_dict()
-        # testDict = { 'doc_id': shot.id, 'views': shotDict.get('views') }
         shotDict.update({ 'doc_id': shot.id })
         shotsList.append(shotDict)
     shotsList.sort(key=order_by, reverse=True)
@@ -276,12 +248,7 @@ async def getDeleteShot(userId: str, shotId: str):
         return False
 
 def removeIdFromComment(comments: List[CommentBlock], idToDelete: str):
-    resList = []
-    for comment in comments:
-        if comment.get('id') != idToDelete:
-            resList.append(comment)
-
-    return resList
+    return [comment for comment in comments if comment.get('id') != idToDelete]
 
 async def removeComment(userId: str, shotId: str, commentId: str):
     try:

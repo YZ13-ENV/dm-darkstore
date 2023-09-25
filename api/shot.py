@@ -5,7 +5,7 @@ from services.shotService import ShotService
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 from firebase import db
-
+from database.shot import getShotById
 router = APIRouter(
     prefix='/shots',
     tags=['Работы']
@@ -88,6 +88,12 @@ async def publishDraft(userId: str, draftId: str, draft: DraftToPublish):
     service = ShotService(userId=userId)
     isDone = await service.publishDraft(draftId=draftId, draft=draft)
     return isDone
+
+@router.get('/shotById')
+@cache(expire=60)
+async def getShot(shotId: str):
+    shot = await getShotById(shotId=shotId)
+    return shot
 
 @router.get('/shot')
 @cache(expire=60)

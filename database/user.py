@@ -122,9 +122,7 @@ async def setShortDataFromDB(userId: str):
 async def getShortDataFromRecord(userId: str):
     record = await getUserRecord(userId=userId)
     if record:
-        if (not record.custom_claims):
-            auth.set_custom_user_claims(userId, { 'isSubscriber': False })
-        if (record.custom_claims and not record.custom_claims.get('isSubscriber')):
+        if not record.custom_claims or not record.custom_claims.get('isSubscriber'):
             auth.set_custom_user_claims(userId, { 'isSubscriber': False })
         short = {
             'short': {
