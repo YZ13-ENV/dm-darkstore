@@ -90,7 +90,7 @@ async def publishDraft(userId: str, draftId: str, draft: DraftToPublish):
     return isDone
 
 @router.get('/shotById')
-@cache(expire=60)
+# @cache(expire=60)
 async def getShot(shotId: str):
     shot = await getShotById(shotId=shotId)
     return shot

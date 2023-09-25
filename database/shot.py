@@ -142,35 +142,32 @@ async def getShots(userId: str, asDoc: bool, order: Optional[str]='popular', lim
     shotsList = []
     
     for shot in shots:
-        shot.to_dict()
-        shot['doc_id'] = shot.id
+        shotDict = shot.to_dict()
+        shotDict.update({ 'doc_id': shot.id })
+        shotsList.append(shotDict)
     
     if limit:
         return shotsList[0:limit]
     return shotsList
 
-async def getShotById(shotId: str):
-    shots = await getAllShots()
-    targetShot = None
-    for shot in shots:
-        if shot['doc_id'] == shotId:
-            targetShot = shot
 
-    return targetShot
 
 async def getAllShots():
     shotsRef = db.collection_group('shots').where('isDraft', '==', False)
-    shotsSnaps = await shotsRef.get()
-    shotsList = [shot.to_dict() for shot in shotsSnaps]
-    
-    for shot in shotsList:
-        shot['doc_id'] = shot.id
+    shots = await shotsRef.get()
+    shotsList = []
+
+    for shot in shots:
+        shotDict = shot.to_dict()
+        shotDict.update({ 'doc_id': shot.id })
+        shotsList.append(shotDict)
     
     return shotsList
 
 async def getShotById(shotId: str):
     shots = await getAllShots()
     targetShot = None
+    
     for shot in shots:
         if shot['doc_id'] == shotId:
             targetShot = shot
