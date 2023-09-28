@@ -1,9 +1,11 @@
-from typing import Optional
-from fastapi import APIRouter
+import datetime
+from typing import Optional, Union
+from fastapi import APIRouter, Header
 from fastapi_cache.decorator import cache
 from database.user import setPlusSubscription
-from firebase import auth
+import os
 from services.userService import UserService
+import jwt
 router = APIRouter(
     prefix='/users',
     tags=['Пользователи']
@@ -51,4 +53,22 @@ async def isInFollowList(userId: str, followId: str):
 async def stopFollow(userId: str, followId: str):
     service = UserService(userId=userId)
     isEnded = await service.stopFollow(followId=followId)
-    return isEnded    
+    return isEnded
+
+@router.post('/setSubStatus')
+async def setSubStatus(userId: str, status: bool=False, token: Union[str, None] = Header(default=None)):
+    try:
+        if (token):
+            tokenData = jwt.decode(token, os.getenv('JWT_SECRET'), algorithms=['HS256'], options={"verify_iat":False})
+            iat = tokenData.get('iat')
+            verifyToken = tokenData.get('verifyToken')
+            now = datetime.datetime.now().timestamp()
+            if (now > iat or not iat or verifyToken != os.getenv('TOKEN')):
+                return None
+            else: 
+                res = await setPlusSubscription(userId=userId, subscriptionStatus=status)
+                return res
+        else:
+            return None
+    except:
+        return None

@@ -29,8 +29,12 @@ async def isInFollowList(userId: str, followId: str):
         return False
         
 async def setPlusSubscription(userId: str, subscriptionStatus: bool):
-    if userId:
-        auth.set_custom_user_claims(userId, { 'isSubscriber': subscriptionStatus })
+    try:
+        if userId:
+            auth.set_custom_user_claims(userId, { 'isSubscriber': subscriptionStatus })
+        return True
+    except:
+        return False
 
 async def getFollows(userId: str):
     userRef = db.collection('users').document(userId)
