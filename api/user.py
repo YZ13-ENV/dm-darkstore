@@ -55,6 +55,27 @@ async def stopFollow(userId: str, followId: str):
     isEnded = await service.stopFollow(followId=followId)
     return isEnded
 
+@router.get('/accessToSub')
+async def getAccessToSub(token: Union[str, None] = Header(default=None)):
+    try:
+        if (token):
+            tokenData = jwt.decode(token, os.getenv('JWT_SECRET'), algorithms=['HS256'], options={"verify_iat":False})
+            iat = tokenData.get('iat')
+            verifyToken = tokenData.get('verifyToken')
+            now = datetime.datetime.now().timestamp()
+            if (now > iat or not iat or verifyToken != os.getenv('TOKEN')):
+                return None
+            else: 
+                tokenPayload = {
+                    'iat': (datetime.datetime.now() + datetime.timedelta(minutes=5)).timestamp(),
+                    'verifyToken': os.getenv('TOKEN')
+                }
+                return jwt.encode(tokenPayload, os.getenv('JWT_SECRET'), algorithm='HS256')
+        else:
+            return None
+    except:
+        return None
+
 @router.post('/setSubStatus')
 async def setSubStatus(userId: str, status: bool=False, token: Union[str, None] = Header(default=None)):
     try:
