@@ -3,10 +3,11 @@ from typing import Dict, Union
 from uuid import uuid4
 from schemas.auth import Session
 from services.authService import AuthService
-from fastapi import APIRouter, Response
+from fastapi import APIRouter
 from fastapi.responses import Response
 from firebase import db
 from jwt import decode, encode
+
 router = APIRouter(
     prefix='/auth',
     tags=['Авторизация']

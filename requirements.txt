@@ -14,3 +14,4 @@ opencv-python
 imageio[ffmpeg]
 imageio[pyav]
 imageio
+yookassa

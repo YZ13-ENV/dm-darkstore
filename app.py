@@ -12,6 +12,7 @@ from api.note import router as NoteRouter
 from api.files import router as FilesRouter
 from api.calendar import router as CalendarRouter
 from api.indexation import router as IndexationRouter
+from api.payments import router as PaymentRouter
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -37,6 +38,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(PaymentRouter)
 app.include_router(ShotRouter)
 app.include_router(UserRouter)
 app.include_router(AuthRouter)
