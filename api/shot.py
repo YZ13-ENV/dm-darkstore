@@ -5,7 +5,7 @@ from services.shotService import ShotService
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 from firebase import db
-from database.shot import getShotById
+from database.shot import getChunkedShotsWithRecommendations, getShotById
 router = APIRouter(
     prefix='/shots',
     tags=['Работы']
@@ -13,9 +13,9 @@ router = APIRouter(
 
 @router.get('/onlyShots')
 @cache(expire=60)
-async def getOnlyShots(userId: str, asDoc: bool=True, order: Optional[str]='popular', limit: Optional[int]=None, exclude: Optional[str]=None):
+async def getOnlyShots(userId: str, order: Optional[str]='popular', limit: Optional[int]=None, exclude: Optional[str]=None):
     service = ShotService(userId=userId)
-    shots = await service.getShots(asDoc=asDoc, limit=limit, exclude=exclude, order=order)
+    shots = await service.getShots(limit=limit, exclude=exclude, order=order)
     return shots
 
 @router.get('/onlyDrafts')
@@ -36,6 +36,11 @@ async def getAllShotCount():
         shotDict = shot.to_dict()
         list.append(shotDict)
     return len(list)
+
+@router.get('/v2/chunkWithRecommendations/{order}')
+async def getChunkWithRecommendations(userId: str, order: str='popular', skip: Optional[int]=0):
+    shots = await getChunkedShotsWithRecommendations(order=order, skip=skip, userId=userId)
+    return shots
 
 @router.get('/userShotsCount/{userId}')
 @cache(expire=60)

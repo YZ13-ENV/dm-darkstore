@@ -36,6 +36,13 @@ async def setPlusSubscription(userId: str, subscriptionStatus: bool):
     except:
         return False
 
+async def getRecommendationTags(userId: str):
+    refTo = db.collection('users').document(userId)
+    snap = await refTo.get()
+    tags = snap.get('recommendationTags')
+    if tags: return tags
+    return []
+
 async def getFollows(userId: str):
     userRef = db.collection('users').document(userId)
     user = await userRef.get()

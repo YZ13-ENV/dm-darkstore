@@ -2,7 +2,7 @@ from firebase_admin import firestore
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from database.files import removeFolder
-from database.user import getFollows
+from database.user import getFollows, getRecommendationTags
 from firebase import db
 from helpers.generators import id_generator
 from schemas.draft import DraftToPublish
@@ -133,8 +133,7 @@ async def getDrafts(userId: str, asDoc: bool):
     return draftsList
 
 
-
-async def getShots(userId: str, asDoc: bool, order: Optional[str]='popular', limit: Optional[int] = None, exclude: Optional[str] = None):
+async def getShots(userId: str, order: Optional[str]='popular', limit: Optional[int] = None, exclude: Optional[str] = None):
     order_by = 'views' if order == 'popular' else 'createdAt'
     shotsRef = db.collection('users').document(userId).collection('shots').where('isDraft', '==', False).order_by(order_by, 'DESCENDING')
     
@@ -144,8 +143,11 @@ async def getShots(userId: str, asDoc: bool, order: Optional[str]='popular', lim
     for shot in shots:
         shotDict = shot.to_dict()
         shotDict.update({ 'doc_id': shot.id })
-        shotsList.append(shotDict)
-    
+        if exclude and shot.id not in exclude:
+            shotsList.append(shotDict)
+        else:
+            shotsList.append(shotDict)
+
     if limit:
         return shotsList[0:limit]
     return shotsList
@@ -178,6 +180,22 @@ async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip
     group = db.collection_group('shots')
     order_by = getViews if order == 'popular' else getCreatedDate
     shotsSnapsQuery = group.where('isDraft', '==', False)
+    shotsSnaps = await shotsSnapsQuery.get()
+    shotsList = []
+    for shot in shotsSnaps:
+        shotDict = shot.to_dict()
+        shotDict.update({ 'doc_id': shot.id })
+        shotsList.append(shotDict)
+    shotsList.sort(key=order_by, reverse=True)
+    return shotsList[skip:skip+16]
+
+async def getChunkedShotsWithRecommendations(order: str='popular', userId: Optional[str]=None, skip: Optional[int]=0):
+    tags = await getRecommendationTags(userId=userId)
+    group = db.collection_group('shots')
+    order_by = getViews if order == 'popular' else getCreatedDate
+    shotsSnapsQuery = group.where('isDraft', '==', False)
+    if len(tags) > 0:
+        shotsSnapsQuery = group.where('isDraft', '==', False).where('tags', 'array_contains_any', tags)
     shotsSnaps = await shotsSnapsQuery.get()
     shotsList = []
     for shot in shotsSnaps:

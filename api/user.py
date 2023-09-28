@@ -1,11 +1,13 @@
+import os
+import jwt
 import datetime
 from typing import Optional, Union
 from fastapi import APIRouter, Header
 from fastapi_cache.decorator import cache
-from database.user import setPlusSubscription
-import os
+from database.user import getRecommendationTags, setPlusSubscription
 from services.userService import UserService
-import jwt
+from firebase import db
+
 router = APIRouter(
     prefix='/users',
     tags=['Пользователи']
@@ -75,6 +77,11 @@ async def getAccessToSub(token: Union[str, None] = Header(default=None)):
             return None
     except:
         return None
+
+@router.get('/recommendations')
+async def getUserRecommendationTags(userId: str):
+    tags = await getRecommendationTags(userId=userId)
+    return tags
 
 @router.post('/setSubStatus')
 async def setSubStatus(userId: str, status: bool=False, token: Union[str, None] = Header(default=None)):
