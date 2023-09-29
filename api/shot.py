@@ -1,4 +1,5 @@
 from typing import List, Optional
+from database.user import getFollows
 from schemas.draft import  DraftToPublish
 from schemas.shot import CommentBlock, NewCommentBlock, ShotData, ShotDataForUpload
 from services.shotService import ShotService
@@ -12,7 +13,7 @@ router = APIRouter(
 )
 
 @router.get('/onlyShots')
-# @cache(expire=60)
+@cache(expire=60)
 async def getOnlyShots(userId: str, order: Optional[str]='popular', limit: Optional[int]=None, exclude: Optional[str]=None):
     service = ShotService(userId=userId)
     shots = await service.getShots(limit=limit, exclude=exclude, order=order)
@@ -25,16 +26,23 @@ async def getOnlyDrafts(userId: str, asDoc: bool=True):
     drafts = await service.getDrafts(asDoc=asDoc)
     return drafts
 
-@router.get('/allShotsCount')
+@router.get('/allShotsCount/{order}')
 @cache(expire=60)
-async def getAllShotCount():
+async def getAllShotCount(userId: Optional[str]=None, order: str='popular'):
     group = db.collection_group('shots')
     shotsSnapsQuery = group.where('isDraft', '==', False)
+    
+    if userId and order == 'following':
+        follows = await getFollows(userId=userId)
+        shotsSnapsQuery = group.where('isDraft', '==', False).where('authorId', 'in', follows)
+
     shots = await shotsSnapsQuery.get()
     list = []
+
     for shot in shots:
         shotDict = shot.to_dict()
         list.append(shotDict)
+
     return len(list)
 
 @router.get('/v2/chunkWithRecommendations/{order}')

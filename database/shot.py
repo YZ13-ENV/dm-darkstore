@@ -182,14 +182,21 @@ async def getShotById(shotId: str):
 async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip: Optional[int]=0):
     group = db.collection_group('shots')
     order_by = getViews if order == 'popular' else getCreatedDate
+
     shotsSnapsQuery = group.where('isDraft', '==', False)
+    
+    if order == 'following' and userId:
+        follows = await getFollows(userId=userId)
+        shotsSnapsQuery = group.where('isDraft', '==', False).where('authorId', 'in', follows)
+
     shotsSnaps = await shotsSnapsQuery.get()
     shotsList = []
     for shot in shotsSnaps:
         shotDict = shot.to_dict()
         shotDict.update({ 'doc_id': shot.id })
         shotsList.append(shotDict)
-    shotsList.sort(key=order_by, reverse=True)
+    
+    shotsList.sort(key=order_by if order != 'following' else getCreatedDate, reverse=True)
     return shotsList[skip:skip+16]
 
 async def getChunkedShotsWithRecommendations(order: str='popular', userId: Optional[str]=None, skip: Optional[int]=0):
