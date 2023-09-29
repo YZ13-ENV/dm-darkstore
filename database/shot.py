@@ -134,8 +134,8 @@ async def getDrafts(userId: str, asDoc: bool):
 
 
 async def getShots(userId: str, order: Optional[str]='popular', limit: Optional[int] = None, exclude: Optional[str] = None):
-    order_by = 'views' if order == 'popular' else 'createdAt'
-    shotsRef = db.collection('users').document(userId).collection('shots').where('isDraft', '==', False).order_by(order_by, 'DESCENDING')
+    order_by = getViews if order == 'popular' else getCreatedDate
+    shotsRef = db.collection('users').document(userId).collection('shots').where('isDraft', '==', False)
     
     shots = await shotsRef.get()
     shotsList = []
@@ -148,8 +148,11 @@ async def getShots(userId: str, order: Optional[str]='popular', limit: Optional[
         else:
             shotsList.append(shotDict)
 
+    shotsList.sort(key=order_by, reverse=True)
+
     if limit:
         return shotsList[0:limit]
+
     return shotsList
 
 

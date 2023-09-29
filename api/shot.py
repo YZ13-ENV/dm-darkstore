@@ -12,7 +12,7 @@ router = APIRouter(
 )
 
 @router.get('/onlyShots')
-@cache(expire=60)
+# @cache(expire=60)
 async def getOnlyShots(userId: str, order: Optional[str]='popular', limit: Optional[int]=None, exclude: Optional[str]=None):
     service = ShotService(userId=userId)
     shots = await service.getShots(limit=limit, exclude=exclude, order=order)
