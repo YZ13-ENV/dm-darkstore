@@ -30,12 +30,14 @@ async def globalSearch(userId: str, q: str):
     return allQueries
 
 @router.get('/shots')
-# @cache(expire=60)
-async def searchShots(q: str, order: str='popular', skip: Optional[int]=0, userId: Optional[str]=None):
-    shots: List[DocShotData] = await getAllShots(skip=skip, order=order)
+@cache(expire=60)
+async def searchShots(q: str, order: str='popular', userId: Optional[str]=None):
+    shots: List[DocShotData] = await getAllShots()
+    order_by = getViews if order == 'popular' else getCreatedDate
     res_shots = shotSearcher(q=q, shots=shots)
     if userId:
         await add_in_history(userId=userId, historyQuery=q)
+    res_shots.sort(key=order_by, reverse=True)
     return res_shots
 
 @router.delete('/{service}')
