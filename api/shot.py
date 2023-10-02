@@ -1,12 +1,13 @@
 from typing import List, Optional
 from database.user import getFollows
+from helpers.shots_categories import getCategory
 from schemas.draft import  DraftToPublish
 from schemas.shot import CommentBlock, NewCommentBlock, ShotData, ShotDataForUpload
 from services.shotService import ShotService
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 from firebase import db
-from database.shot import getChunkedShotsWithRecommendations, getShotById
+from database.shot import getChunkByCategory, getChunkedShotsWithRecommendations, getShotById
 router = APIRouter(
     prefix='/shots',
     tags=['Работы']
@@ -44,8 +45,31 @@ async def getAllShotCount(userId: Optional[str]=None, order: str='popular'):
         list.append(shotDict)
 
     return len(list)
+@router.get('/v2/chunkByCategoriesCount/{category}/{order}')
+@cache(expire=60)
+async def chunkByCategoriesCount(category: str, order: str='popular', skip: Optional[int]=0):
+    category_tags = await getCategory(category)
+    if category_tags:
+        shots = await getChunkByCategory(order=order, skip=skip, tags=category_tags)
+        return len(shots)
+    return 0
+@router.get('/v2/chunkByCategories/{category}/{order}')
+@cache(expire=60)
+async def getChunkByCategories(category: str, order: str='popular', skip: Optional[int]=0):
+    category_tags = await getCategory(category)
+    if category_tags:
+        shots = await getChunkByCategory(order=order, skip=skip, tags=category_tags)
+        return shots
+    return None
+
+@router.get('/v2/chunkWithRecommendationsCount/{order}')
+@cache(expire=60)
+async def getChunkWithRecommendations(userId: str, order: str='popular', skip: Optional[int]=0):
+    shots = await getChunkedShotsWithRecommendations(order=order, skip=skip, userId=userId)
+    return len(shots)
 
 @router.get('/v2/chunkWithRecommendations/{order}')
+@cache(expire=60)
 async def getChunkWithRecommendations(userId: str, order: str='popular', skip: Optional[int]=0):
     shots = await getChunkedShotsWithRecommendations(order=order, skip=skip, userId=userId)
     return shots
