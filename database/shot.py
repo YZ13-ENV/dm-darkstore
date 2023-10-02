@@ -183,7 +183,7 @@ async def getChunkByCategory(order: str='popular', tags: List[str]=[], skip: Opt
     group = db.collection_group('shots')
     order_by = getViews if order == 'popular' else getCreatedDate
 
-    shotsSnapsQuery = group.where('isDraft', '==', False).where('tags', 'in', tags)
+    shotsSnapsQuery = group.where('isDraft', '==', False).where('tags', 'array_contains_any', tags)
 
     shotsSnaps = await shotsSnapsQuery.get()
     shotsList = []
