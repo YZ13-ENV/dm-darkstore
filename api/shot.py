@@ -1,13 +1,10 @@
-from typing import List, Optional
-from database.user import getFollows
-from helpers.shots_categories import getCategory
+from typing import Optional
 from schemas.draft import  DraftToPublish
 from schemas.shot import CommentBlock, NewCommentBlock, ShotData, ShotDataForUpload
 from services.shotService import ShotService
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
-from firebase import db
-from database.shot import getChunkByCategory, getChunkedShotsWithRecommendations, getShotById
+from database.shot import chunkUserWithOrder, chunkWithOrder, chunkWithOrderAndCategory, getShot
 router = APIRouter(
     prefix='/shots',
     tags=['Работы']
@@ -27,74 +24,35 @@ async def getOnlyDrafts(userId: str, asDoc: bool=True):
     drafts = await service.getDrafts(asDoc=asDoc)
     return drafts
 
-@router.get('/allShotsCount/{order}')
-@cache(expire=60)
-async def getAllShotCount(userId: Optional[str]=None, order: str='popular'):
-    group = db.collection_group('shots')
-    shotsSnapsQuery = group.where('isDraft', '==', False)
-    
-    if userId and order == 'following':
-        follows = await getFollows(userId=userId)
-        shotsSnapsQuery = group.where('isDraft', '==', False).where('authorId', 'in', follows)
-
-    shots = await shotsSnapsQuery.get()
-    list = []
-
-    for shot in shots:
-        shotDict = shot.to_dict()
-        list.append(shotDict)
-
-    return len(list)
-@router.get('/v2/chunkByCategoriesCount/{category}/{order}')
-@cache(expire=60)
-async def chunkByCategoriesCount(category: str, order: str='popular', skip: Optional[int]=0):
-    category_tags = await getCategory(category)
-    if category_tags:
-        shots = await getChunkByCategory(order=order, skip=skip, tags=category_tags)
-        return len(shots)
-    return 0
-@router.get('/v2/chunkByCategories/{category}/{order}')
-@cache(expire=60)
-async def getChunkByCategories(category: str, order: str='popular', skip: Optional[int]=0):
-    category_tags = await getCategory(category)
-    if category_tags:
-        shots = await getChunkByCategory(order=order, skip=skip, tags=category_tags)
-        return shots
-    return None
-
-@router.get('/v2/chunkWithRecommendationsCount/{order}')
-@cache(expire=60)
-async def getChunkWithRecommendations(userId: str, order: str='popular', skip: Optional[int]=0):
-    shots = await getChunkedShotsWithRecommendations(order=order, skip=skip, userId=userId)
-    return len(shots)
-
-@router.get('/v2/chunkWithRecommendations/{order}')
-@cache(expire=60)
-async def getChunkWithRecommendations(userId: str, order: str='popular', skip: Optional[int]=0):
-    shots = await getChunkedShotsWithRecommendations(order=order, skip=skip, userId=userId)
+@router.get('/all/{order}')
+async def getSomeShots(order: str='popular', skip: Optional[str]=None):
+    shots = await chunkWithOrder(order=order, skip=int(skip))
     return shots
 
-@router.get('/userShotsCount/{userId}')
-@cache(expire=60)
-async def getAllUserShotsCount(userId: str):
-    userShotsRef = db.collection('users').document(userId).collection('shots')
-    shots = await userShotsRef.get()
-    count = len(shots)
+@router.get('/all/{order}/{category}')
+async def getSomeShotsWithCategories(order: str='popular', category: Optional[str]=None, skip: Optional[str]=None):
+    shots = await chunkWithOrderAndCategory(order=order, category=category, skip=int(skip))
+    return shots
+
+@router.get('/all/{userId}/{order}')
+async def getUserShots(userId: str, order: str='popular', skip: Optional[str]=None):
+    shots = await chunkUserWithOrder(order=order, userId=userId, skip=int(skip))
+    return shots
+
+@router.get('/count/{order}')
+async def getSomeShotsCount(order: str='popular'):
+    count = await chunkWithOrder(order=order, skip=None)
     return count
 
-@router.get('/v2/chunkedUserShots/{order}')
-@cache(expire=60)
-async def getUserChunkedShots(userId: str, order: str='popular', skip: Optional[int]=0):
-    service = ShotService(userId=userId)
-    shots = await service.getUserChunk(order=order, skip=skip)
-    return shots
+@router.get('/count/{order}/{category}')
+async def getSomeShotsCountWithCategories(category: str, order: str='popular'):
+    count = await chunkWithOrderAndCategory(order=order, category=category, skip=None)
+    return count
 
-@router.get('/v2/chunkedAllShots/{order}')
-@cache(expire=60)
-async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip: Optional[int]=0):
-    service = ShotService(userId=userId)
-    shots = await service.getChunk(order=order, skip=skip)
-    return shots
+@router.get('/count/{userId}/{order}')
+async def getUserShots(userId: str, order: str='popular'):
+    count = await chunkUserWithOrder(order=order, userId=userId, skip=None)
+    return count
 
 @router.post('/updateShot')
 async def updateShot(userId: str, shotId: str, shot: ShotData):
@@ -102,17 +60,17 @@ async def updateShot(userId: str, shotId: str, shot: ShotData):
     isDone = await service.updateShot(shotId=shotId, shot=shot)
     return isDone
 
-@router.patch('/addOrRemoveLikes')
-async def addOrRemoveLikes(shotAuthorId: str, shotId: str, uid: str):
-    service = ShotService(userId=shotAuthorId)
-    result = await service.addOrRemoveLikes(shotId=shotId, uid=uid)
-    return result
+@router.get('/shot/{shotId}')
+@cache(expire=60)
+async def getShotWithShotId(shotId: str):
+    shot = await getShot(shotId=shotId)
+    return shot
 
-@router.patch('/addView')
-async def addViews(shotAuthorId: str, shotId: str, uid: str):
-    service = ShotService(userId=shotAuthorId)
-    result = await service.addView(shotId=shotId, uid=uid)
-    return result
+@router.get('/shot/{shotId}/{userId}')
+@cache(expire=60)
+async def getShotWithUserIdAndShotId(userId: str, shotId: str):
+    shot = await getShot(userId=userId, shotId=shotId)
+    return shot
 
 @router.post('/updateDraft')
 async def updateDraft(userId: str, draftId: str, draft: ShotDataForUpload):
@@ -126,24 +84,23 @@ async def publishDraft(userId: str, draftId: str, draft: DraftToPublish):
     isDone = await service.publishDraft(draftId=draftId, draft=draft)
     return isDone
 
-@router.get('/shotById')
-# @cache(expire=60)
-async def getShot(shotId: str):
-    shot = await getShotById(shotId=shotId)
-    return shot
-
-@router.get('/shot')
-@cache(expire=60)
-async def getShot(userId: str, shotId: str):
-    service = ShotService(userId=userId)
-    shot = await service.getShot(shotId=shotId)
-    return shot
-
 @router.post('/comment')
 async def addComment(userId: str, shotId: str, comment: NewCommentBlock):
     service = ShotService(userId=userId)
     isAdded = await service.addComment(shotId=shotId, comment=comment)
     return isAdded
+
+@router.patch('/addOrRemoveLikes')
+async def addOrRemoveLikes(shotAuthorId: str, shotId: str, uid: str):
+    service = ShotService(userId=shotAuthorId)
+    result = await service.addOrRemoveLikes(shotId=shotId, uid=uid)
+    return result
+
+@router.patch('/addView')
+async def addViews(shotAuthorId: str, shotId: str, uid: str):
+    service = ShotService(userId=shotAuthorId)
+    result = await service.addView(shotId=shotId, uid=uid)
+    return result
 
 @router.patch('/comment')
 async def patchComment(userId: str, shotId: str, comment: CommentBlock):
@@ -157,7 +114,9 @@ async def removeComment(userId: str, shotId: str, commentId: str):
     isAdded = await service.removeComment(shotId=shotId, commentId=commentId)
     return isAdded
 
-@router.delete('/shot')
+# @router.delete('/shot/{shotId}')
+# @router.delete('/shot/{shotId}/{userId}')
+@router.delete('/shot/{shotId}/{userId}')
 async def deleteShot(userId: str, shotId: str):
     service = ShotService(userId=userId)
     res = await service.deleteShot(shotId=shotId)

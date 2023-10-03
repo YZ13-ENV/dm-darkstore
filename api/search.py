@@ -29,7 +29,7 @@ async def globalSearch(userId: str, q: str):
 
     return allQueries
 
-@router.get('/shots')
+@router.get('/{q}/{order}')
 @cache(expire=60)
 async def searchShots(q: str, order: str='popular', userId: Optional[str]=None):
     shots: List[DocShotData] = await getAllShots()
@@ -40,7 +40,7 @@ async def searchShots(q: str, order: str='popular', userId: Optional[str]=None):
     res_shots.sort(key=order_by, reverse=True)
     return res_shots
 
-@router.delete('/{service}')
+@router.delete('/history/{service}')
 async def deleteSearchQuery(service: str, userId: str, queryId: str):
     try:
         queryRef: firestore.DocumentReference = db.collection('users').document(userId).collection('history').document('search').collection(service).document(queryId)
@@ -49,7 +49,7 @@ async def deleteSearchQuery(service: str, userId: str, queryId: str):
     except:
         return False
 
-@router.get('/{service}')
+@router.get('/history/{service}')
 async def getSearchQuery(service: str, userId: str):
     queries: firestore.CollectionReference = db.collection('users').document(userId).collection('history').document('search').collection(service)
     allQr: List[firestore.DocumentSnapshot] = await queries.get()

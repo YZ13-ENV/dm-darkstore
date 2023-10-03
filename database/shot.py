@@ -2,11 +2,12 @@ from firebase_admin import firestore
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from database.files import removeFolder
-from database.user import getFollows, getRecommendationTags
 from firebase import db
 from helpers.generators import id_generator
+from helpers.shots_categories import getCategory
 from schemas.draft import DraftToPublish
 from schemas.shot import CommentBlock, ShotData, ShotDataForUpload, NewCommentBlock
+
 def getCreatedDate(el):
     return el['createdAt']
 
@@ -155,8 +156,6 @@ async def getShots(userId: str, order: Optional[str]='popular', limit: Optional[
 
     return shotsList
 
-
-
 async def getAllShots():
     shotsRef = db.collection_group('shots').where('isDraft', '==', False)
     shots = await shotsRef.get()
@@ -179,10 +178,29 @@ async def getShotById(shotId: str):
 
     return targetShot
 
-async def getChunkByCategory(order: str='popular', tags: List[str]=[], skip: Optional[int]=0):
+async def chunkWithOrder(skip: Optional[int], order: str='popular'):
     group = db.collection_group('shots')
     order_by = getViews if order == 'popular' else getCreatedDate
 
+    shotsSnapsQuery = group.where('isDraft', '==', False)
+
+    shotsSnaps = await shotsSnapsQuery.get()
+    shotsList = []
+    for shot in shotsSnaps:
+        shotDict = shot.to_dict()
+        shotDict.update({ 'doc_id': shot.id })
+        shotsList.append(shotDict)
+    
+    shotsList.sort(key=order_by if order != 'following' else getCreatedDate, reverse=True)
+
+    if skip != None and skip > -1:
+        return shotsList[skip:skip+16]
+    return len(shotsList)
+
+async def chunkWithOrderAndCategory(category: str, skip: Optional[int], order: str='popular'):
+    group = db.collection_group('shots')
+    order_by = getViews if order == 'popular' else getCreatedDate
+    tags: List[str] = await getCategory(category)
     shotsSnapsQuery = group.where('isDraft', '==', False).where('tags', 'array_contains_any', tags)
 
     shotsSnaps = await shotsSnapsQuery.get()
@@ -193,17 +211,16 @@ async def getChunkByCategory(order: str='popular', tags: List[str]=[], skip: Opt
         shotsList.append(shotDict)
     
     shotsList.sort(key=order_by if order != 'following' else getCreatedDate, reverse=True)
-    return shotsList[skip:skip+16]
 
-async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip: Optional[int]=0):
+    if skip != None and skip > -1:
+        return shotsList[skip:skip+16]
+    return len(shotsList)
+
+async def chunkUserWithOrder(userId: str, skip: Optional[int], order: str='popular'):
     group = db.collection_group('shots')
     order_by = getViews if order == 'popular' else getCreatedDate
 
-    shotsSnapsQuery = group.where('isDraft', '==', False)
-    
-    if order == 'following' and userId:
-        follows = await getFollows(userId=userId)
-        shotsSnapsQuery = group.where('isDraft', '==', False).where('authorId', 'in', follows)
+    shotsSnapsQuery = group.where('isDraft', '==', False).where('authorId', '==', userId)
 
     shotsSnaps = await shotsSnapsQuery.get()
     shotsList = []
@@ -213,70 +230,25 @@ async def getChunkedShots(order: str='popular', userId: Optional[str]=None, skip
         shotsList.append(shotDict)
     
     shotsList.sort(key=order_by if order != 'following' else getCreatedDate, reverse=True)
-    return shotsList[skip:skip+16]
-
-async def getChunkedShotsWithRecommendations(order: str='popular', userId: Optional[str]=None, skip: Optional[int]=0):
-    tags = await getRecommendationTags(userId=userId)
-    group = db.collection_group('shots')
-    order_by = getViews if order == 'popular' else getCreatedDate
-    shotsSnapsQuery = group.where('isDraft', '==', False)
-    if len(tags) > 0:
-        shotsSnapsQuery = group.where('isDraft', '==', False).where('tags', 'array_contains_any', tags)
-    shotsSnaps = await shotsSnapsQuery.get()
-    shotsList = []
-    for shot in shotsSnaps:
-        shotDict = shot.to_dict()
-        shotDict.update({ 'doc_id': shot.id })
-        shotsList.append(shotDict)
-    shotsList.sort(key=order_by, reverse=True)
-    return shotsList[skip:skip+16]
-
-async def getUserChunkedShots(userId: str, order: str='popular', skip: Optional[int]=0):
-    userShotsRef = db.collection('users').document(userId).collection('shots')
-    order_by = 'views' if order == 'popular' else 'createdAt'
-    shotsSnapsQuery = userShotsRef.where('isDraft', '==', False).order_by(order_by, 'ASCENDING').limit(16).offset(skip)
-    shotsSnaps = await shotsSnapsQuery.get()
-    shotsList = []
     
-    for shot in shotsSnaps:
-        shotDict = shot.to_dict()
-        shotDict.update({ 'doc_id': shot.id })
-        shotsList.append(shotDict)
+    if skip != None and skip > -1:
+        return shotsList[skip:skip+16]
+    return len(shotsList)
 
-    return shotsList
+async def getShot(userId: Optional[str], shotId: str):
+    if (userId):
+        shotRef = db.collection('users').document(userId).collection('shots').document(shotId)
+        shotSnap = await shotRef.get()
+        if shotSnap.exists:
+            snapDict = shotSnap.to_dict()
+            snapDict['doc_id'] = shotSnap.id
+            return snapDict
+        else:
+            return None
 
-
-async def getUpgradedUsersShots(order: Optional[str]='popular', userId: Optional[str]=None):
-    group = db.collection_group('shots')
-    order_by = 'views' if order == 'popular' else 'createdAt'
-    shotsSnaps = await group.where('isDraft', '==', False).order_by(order_by, 'DESCENDING').get()
-    shotsList = []
-    for shot in shotsSnaps:
-        shotDict = shot.to_dict()
-        shotDict.update({ 'doc_id': shot.id })
-        shotsList.append(shotDict)
-
-    if (order == 'following' and userId):
-        followingShot = []
-        follows = await getFollows(userId=userId)
-        for follow in follows:
-            shots = await getShots(userId=follow, asDoc=True)
-            for shot in shots:
-                followingShot.append(shot)
-        followingShot.sort(key=getCreatedDate, reverse=True)
-        return followingShot
-    
-    return shotsList
-
-async def getShot(userId: str, shotId: str):
-    shotRef = db.collection('users').document(userId).collection('shots').document(shotId)
-    shotSnap = await shotRef.get()
-    if shotSnap.exists:
-        snapDict = shotSnap.to_dict()
-        snapDict['doc_id'] = shotSnap.id
-        return snapDict
     else:
-        return None
+        shot = await getShotById(shotId=shotId)
+        return shot
 
 async def getDeleteShot(userId: str, shotId: str):
     shotRef = db.collection('users').document(userId).collection('shots').document(shotId)

@@ -11,7 +11,6 @@ from api.tag import router as TagRouter
 from api.note import router as NoteRouter
 from api.files import router as FilesRouter
 from api.calendar import router as CalendarRouter
-from api.indexation import router as IndexationRouter
 # from api.payments import router as PaymentRouter
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,7 +46,6 @@ app.include_router(TagRouter)
 app.include_router(NoteRouter)
 app.include_router(FilesRouter)
 app.include_router(CalendarRouter)
-app.include_router(IndexationRouter)
 
 
 @app.on_event('startup')

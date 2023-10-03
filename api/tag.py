@@ -8,11 +8,11 @@ router = APIRouter(
     tags=['Тэги']
 )
 
-@router.get('/{tag}')
+@router.get('/{tag}/{order}')
 @cache(expire=120)
-async def getShotByTag(tag: str, sortBy: str='popular', skip: Optional[int]=0):
+async def getShotByTag(tag: str, order: str='popular', skip: Optional[int]=0):
     group = db.collection_group('shots').limit(16).offset(skip)
-    order_by = 'views' if sortBy == 'popular' else 'createdAt'
+    order_by = 'views' if order == 'popular' else 'createdAt'
     list = []
     q = group.where('tags', 'array_contains', tag).order_by(field_path=order_by, direction='DESCENDING')
     snaps = await q.get()
