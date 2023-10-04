@@ -25,31 +25,37 @@ async def getOnlyDrafts(userId: str, asDoc: bool=True):
     return drafts
 
 @router.get('/all/{order}')
+@cache(expire=60)
 async def getSomeShots(order: str='popular', skip: Optional[str]=None):
     shots = await chunkWithOrder(order=order, skip=int(skip))
     return shots
 
 @router.get('/all/{order}/{category}')
+@cache(expire=60)
 async def getSomeShotsWithCategories(order: str='popular', category: Optional[str]=None, skip: Optional[str]=None):
     shots = await chunkWithOrderAndCategory(order=order, category=category, skip=int(skip))
     return shots
 
 @router.get('/user/{userId}/{order}')
+@cache(expire=60)
 async def getUserShots(userId: str, order: str='popular', skip: Optional[str]=None):
     shots = await chunkUserWithOrder(order=order, userId=userId, skip=int(skip))
     return shots
 
 @router.get('/count/{order}')
+@cache(expire=60)
 async def getSomeShotsCount(order: str='popular'):
     count = await chunkWithOrder(order=order, skip=None)
     return count
 
 @router.get('/count/{order}/{category}')
+@cache(expire=60)
 async def getSomeShotsCountWithCategories(category: str, order: str='popular'):
     count = await chunkWithOrderAndCategory(order=order, category=category, skip=None)
     return count
 
 @router.get('/user/count/{userId}/{order}')
+@cache(expire=60)
 async def getUserShots(userId: str, order: str='popular'):
     count = await chunkUserWithOrder(order=order, userId=userId, skip=None)
     return count
