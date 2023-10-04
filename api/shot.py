@@ -34,7 +34,7 @@ async def getSomeShotsWithCategories(order: str='popular', category: Optional[st
     shots = await chunkWithOrderAndCategory(order=order, category=category, skip=int(skip))
     return shots
 
-@router.get('/all/{userId}/{order}')
+@router.get('/user/{userId}/{order}')
 async def getUserShots(userId: str, order: str='popular', skip: Optional[str]=None):
     shots = await chunkUserWithOrder(order=order, userId=userId, skip=int(skip))
     return shots
@@ -49,7 +49,7 @@ async def getSomeShotsCountWithCategories(category: str, order: str='popular'):
     count = await chunkWithOrderAndCategory(order=order, category=category, skip=None)
     return count
 
-@router.get('/count/{userId}/{order}')
+@router.get('/user/count/{userId}/{order}')
 async def getUserShots(userId: str, order: str='popular'):
     count = await chunkUserWithOrder(order=order, userId=userId, skip=None)
     return count

@@ -235,7 +235,7 @@ async def chunkUserWithOrder(userId: str, skip: Optional[int], order: str='popul
         return shotsList[skip:skip+16]
     return len(shotsList)
 
-async def getShot(userId: Optional[str], shotId: str):
+async def getShot(shotId: str, userId: Optional[str]=None):
     if (userId):
         shotRef = db.collection('users').document(userId).collection('shots').document(shotId)
         shotSnap = await shotRef.get()

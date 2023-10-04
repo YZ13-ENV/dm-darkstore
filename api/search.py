@@ -29,7 +29,7 @@ async def globalSearch(userId: str, q: str):
 
     return allQueries
 
-@router.get('/{q}/{order}')
+@router.get('/query/{q}/{order}')
 @cache(expire=60)
 async def searchShots(q: str, order: str='popular', userId: Optional[str]=None):
     shots: List[DocShotData] = await getAllShots()
