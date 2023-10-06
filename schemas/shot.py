@@ -2,6 +2,19 @@ from __future__ import annotations
 from pydantic import BaseModel
 from typing import Union, Optional, List
 
+class EmojiReaction(BaseModel):
+    key: str
+    emoji: str
+    class Config: 
+        orm_mode = True
+
+class Reaction(BaseModel):
+    reaction: EmojiReaction
+    uid: str
+    createdAt: Union[float, int]
+    class Config: 
+        orm_mode = True
+
 class Thumbnail(BaseModel):
     width: int
     height: int
@@ -46,6 +59,7 @@ class CommentBlock(BaseModel):
     text: str
     createdAt: Union[int, float]
     answers: List[Union[None, CommentBlockNoAnswers]]
+    reactions: List[Reaction]
 
     class Config: 
         orm_mode = True
@@ -55,6 +69,7 @@ class NewCommentBlock(BaseModel):
     text: str
     createdAt: Union[int, float]
     answers: List[Union[None, CommentBlockNoAnswers]]
+    reactions: List[Reaction]
 
     class Config: 
         orm_mode = True    
@@ -88,6 +103,7 @@ class LikeWithTimestamp(BaseModel):
     createdAt: Union[float, int]
     class Config: 
         orm_mode = True
+
 
 class ShotData(BaseModel):
     isDraft: bool

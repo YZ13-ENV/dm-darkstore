@@ -276,8 +276,22 @@ async def removeComment(userId: str, shotId: str, commentId: str):
         return False
 
 async def patchComment(userId: str, shotId: str, comment: CommentBlock):
-    pass
-
+    # try:
+        shotRef = db.collection('users').document(userId).collection('shots').document(shotId)
+        shotSnap = await shotRef.get()
+        shotDict: Dict[str, Any] = shotSnap.to_dict()
+        comments: List[CommentBlock] = shotDict.get('comments')
+        commentDict = comment.dict()
+        updatedComments = []
+        for oldComment in comments:
+            if oldComment.get('id') == commentDict.get('id'):
+                updatedComments.append(commentDict)
+            else: updatedComments.append(oldComment)
+        await shotRef.update({ 'comments': updatedComments })
+        return True
+    # except:
+        # return False
+    
 async def addComment(userId: str, shotId: str, comment: NewCommentBlock):
         try:
             shotRef = db.collection('users').document(userId).collection('shots').document(shotId)
