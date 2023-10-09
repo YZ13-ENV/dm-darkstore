@@ -24,6 +24,7 @@ async def checkCode(code: str):
         codeDict = pCode.to_dict()
         if codeDict.get('code') == code:
             targetCode = codeDict
+            targetCode.update({ 'id': pCode.id })
     return targetCode
 
 @router.delete('/code/{code}')
