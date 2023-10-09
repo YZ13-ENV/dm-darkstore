@@ -1,12 +1,8 @@
-import os
-import jwt
-import datetime
-from typing import Optional, Union
-from fastapi import APIRouter, Header
+from typing import Optional
+from fastapi import APIRouter
 from fastapi_cache.decorator import cache
-from database.user import getRecommendationTags, setPlusSubscription
+from database.user import getRecommendationTags
 from services.userService import UserService
-from firebase import db
 
 router = APIRouter(
     prefix='/users',
@@ -57,46 +53,10 @@ async def stopFollow(userId: str, followId: str):
     isEnded = await service.stopFollow(followId=followId)
     return isEnded
 
-@router.get('/accessToSub')
-async def getAccessToSub(token: Union[str, None] = Header(default=None)):
-    try:
-        if (token):
-            tokenData = jwt.decode(token, os.getenv('JWT_SECRET'), algorithms=['HS256'], options={"verify_iat":False})
-            iat = tokenData.get('iat')
-            verifyToken = tokenData.get('verifyToken')
-            now = datetime.datetime.now().timestamp()
-            if (now > iat or not iat or verifyToken != os.getenv('TOKEN')):
-                return None
-            else: 
-                tokenPayload = {
-                    'iat': (datetime.datetime.now() + datetime.timedelta(minutes=5)).timestamp(),
-                    'verifyToken': os.getenv('TOKEN')
-                }
-                return jwt.encode(tokenPayload, os.getenv('JWT_SECRET'), algorithm='HS256')
-        else:
-            return None
-    except:
-        return None
+
 
 @router.get('/recommendations')
 async def getUserRecommendationTags(userId: str):
     tags = await getRecommendationTags(userId=userId)
     return tags
 
-@router.post('/setSubStatus')
-async def setSubStatus(userId: str, status: bool=False, token: Union[str, None] = Header(default=None)):
-    try:
-        if (token):
-            tokenData = jwt.decode(token, os.getenv('JWT_SECRET'), algorithms=['HS256'], options={"verify_iat":False})
-            iat = tokenData.get('iat')
-            verifyToken = tokenData.get('verifyToken')
-            now = datetime.datetime.now().timestamp()
-            if (now > iat or not iat or verifyToken != os.getenv('TOKEN')):
-                return None
-            else: 
-                res = await setPlusSubscription(userId=userId, subscriptionStatus=status)
-                return res
-        else:
-            return None
-    except:
-        return None

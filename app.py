@@ -11,14 +11,14 @@ from api.tag import router as TagRouter
 from api.note import router as NoteRouter
 from api.files import router as FilesRouter
 from api.calendar import router as CalendarRouter
-# from api.payments import router as PaymentRouter
+from api.plus import router as PlusRouter
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 
-app = FastAPI(docs_url=None, redoc_url=None)
-# app = FastAPI()
+# app = FastAPI(docs_url=None, redoc_url=None)
+app = FastAPI()
 
 origins = [
     'https://auth.darkmaterial.space',
@@ -46,6 +46,7 @@ app.include_router(TagRouter)
 app.include_router(NoteRouter)
 app.include_router(FilesRouter)
 app.include_router(CalendarRouter)
+app.include_router(PlusRouter)
 
 
 @app.on_event('startup')
