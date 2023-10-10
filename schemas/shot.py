@@ -40,6 +40,7 @@ class TextBlock(BaseModel):
 
 class ShotGridBlock(BaseModel):
     type: str
+    title: str
     ids: List[str]
 
     class Config: 
