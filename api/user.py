@@ -1,9 +1,10 @@
-from typing import Optional
+from typing import Optional, Union
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 from database.user import getRecommendationTags
 from firebase import db, auth
 from firebase_admin import firestore
+from helpers.nickname import getUidByNickName
 # from helpers.nickname import getUidByNickName
 from services.userService import UserService
 
@@ -36,6 +37,18 @@ async def setNickName(nickname: str, uid: str):
     nickRef: firestore.firestore.AsyncDocumentReference = db.collection('dm').document('users').collection('nicknames').document(nickname)
     await nickRef.set(document_data=nicknameDict)
     return None
+
+@router.get('/short/nickname/{nickname}')
+@cache(expire=120)
+async def getShortData(nickname: str):
+    userId: Union[str, None] = await getUidByNickName(nickname=nickname)
+    if userId:
+        service = UserService(userId)
+        data = await service.getShortData()
+        return data
+    else:
+        return None
+
 
 @router.get('/shortData')
 @cache(expire=120)
