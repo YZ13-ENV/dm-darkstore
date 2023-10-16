@@ -2,12 +2,40 @@ from typing import Optional
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 from database.user import getRecommendationTags
+from firebase import db, auth
+from firebase_admin import firestore
+# from helpers.nickname import getUidByNickName
 from services.userService import UserService
 
 router = APIRouter(
     prefix='/users',
     tags=['Пользователи']
 )
+
+# @router.get('/data/{nickname}')
+# async def getDataByNickName(nickname: str):
+#     uid = await getUidByNickName(nickname=nickname)
+#     return uid
+
+@router.delete('/nickname/{nickname}')
+async def removeNickName(nickname: str):
+    nickRef: firestore.firestore.AsyncDocumentReference = db.collection('dm').document('users').collection('nicknames').document(nickname)
+    await nickRef.delete()
+    return None
+
+@router.post('/nickname/{nickname}/{uid}')
+async def setNickName(nickname: str, uid: str):
+    kwargs = {
+        'display_name': nickname
+    }
+    auth.update_user(uid=uid, **kwargs)
+    nicknameDict = {
+        'nickname': nickname,
+        'uid': uid
+    }
+    nickRef: firestore.firestore.AsyncDocumentReference = db.collection('dm').document('users').collection('nicknames').document(nickname)
+    await nickRef.set(document_data=nicknameDict)
+    return None
 
 @router.get('/shortData')
 @cache(expire=120)
