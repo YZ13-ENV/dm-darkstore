@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from firebase import db
-from schemas.note import DocNote, Note
+from schemas.note import Note
 
 router = APIRouter(
     prefix='/notes',
