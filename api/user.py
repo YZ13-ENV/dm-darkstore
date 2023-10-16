@@ -17,6 +17,10 @@ router = APIRouter(
 # async def getDataByNickName(nickname: str):
 #     uid = await getUidByNickName(nickname=nickname)
 #     return uid
+@router.get('/nickname/{nickname})
+async def getNickname(nickname: str):
+    userId: Union[str, None] = await getUidByNickName(nickname=nickname)
+    return userId
 
 @router.delete('/nickname/{nickname}')
 async def removeNickName(nickname: str):
