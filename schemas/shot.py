@@ -29,10 +29,10 @@ class MediaBlock(BaseModel):
 
 class TextBlock(BaseModel):
     type: str
-    size: int
-    align: str
-    isBold: bool
-    isItalic: bool
+    size: Optional[int, None]
+    align: Optional[str, None]
+    isBold: Optional[bool, None]
+    isItalic: Optional[bool, None]
     text: str
 
     class Config: 
