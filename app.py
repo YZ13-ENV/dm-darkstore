@@ -17,12 +17,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 
-# app = FastAPI(docs_url=None, redoc_url=None)
-app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url=None)
+# app = FastAPI()
 
 origins = [
     'https://auth.darkmaterial.space',
     'https://bum.darkmaterial.space',
+    'https://dev-bum.darkmaterial.space',
     'https://plus.darkmaterial.space',
     'https://notes.darkmaterial.space',
     'https://calendar.darkmaterial.space',
@@ -68,4 +69,4 @@ async def startup_event():
 
 @app.get('/')
 def HI_API():
-    return 'Hi from DM API!'
+    return 'DM API'
