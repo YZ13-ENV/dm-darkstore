@@ -61,12 +61,11 @@ async def generateCode(token: Union[str, None] = Header(default=None)):
                 'expiredAt': (datetime.datetime.now() + datetime.timedelta(days=7)).timestamp()
             }
             if (verifyToken == os.getenv('TOKEN')): 
-            	await codesRef.add(newCode)
-            	return True
-            else:
-                return False	
-        else:
-            return False
+                await codesRef.add(newCode)
+                return True
+            
+        return False
+    
     except:
         return False
 
