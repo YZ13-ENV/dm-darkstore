@@ -1,8 +1,13 @@
+import os
+import httpx
 import aioredis 
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi_utils.tasks import repeat_every
-import httpx
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI
+from dotenv import load_dotenv
+
 from api.shot import router as ShotRouter
 from api.user import router as UserRouter
 from api.auth import router as AuthRouter
@@ -12,22 +17,18 @@ from api.note import router as NoteRouter
 from api.files import router as FilesRouter
 from api.calendar import router as CalendarRouter
 from api.plus import router as PlusRouter
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
-import os
 
 app = FastAPI(docs_url=None, redoc_url=None)
 # app = FastAPI()
 
 origins = [
-    'https://auth.darkmaterial.space',
+    'https://blck.darkmaterial.space',
     'https://bum.darkmaterial.space',
     'https://dev-bum.darkmaterial.space',
-    'https://plus.darkmaterial.space',
-    'https://notes.darkmaterial.space',
-    'https://calendar.darkmaterial.space',
     'https://darkmaterial.space',
+    'https://www.blck.darkmaterial.space',
+    'https://www.dev-bum.darkmaterial.space',
+    'https://www.bum.darkmaterial.space',
     'https://www.darkmaterial.space',
     'http://localhost:3000'
 ]
