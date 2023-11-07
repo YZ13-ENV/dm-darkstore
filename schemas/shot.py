@@ -20,9 +20,30 @@ class Thumbnail(BaseModel):
     height: int
     link: str
 
+# blocks
 class MediaBlock(BaseModel):
     type: str
     link: str
+
+    class Config: 
+        orm_mode = True
+
+class Separator(BaseModel):
+    type: str
+    withIcon: bool
+    uid: str
+
+    class Config: 
+        orm_mode = True
+
+class StickerBlock(BaseModel):
+    type: str
+    x: int
+    y: int
+    width: Optional[int]
+    height: Optional[int]
+    rotate: int
+    code: str
 
     class Config: 
         orm_mode = True
@@ -78,7 +99,7 @@ class NewCommentBlock(BaseModel):
 class ShotDataForUpload(BaseModel):
     title: str
     rootBlock: MediaBlock
-    blocks: List[Union[TextBlock, ShotGridBlock, MediaBlock]]
+    blocks: List[Union[StickerBlock, Separator, TextBlock, ShotGridBlock, MediaBlock]]
     thumbnail: Optional[Thumbnail]
 
     class Config: 
@@ -111,7 +132,7 @@ class ShotData(BaseModel):
     authorId: str
     title: str
     rootBlock: MediaBlock
-    blocks: List[Union[TextBlock, ShotGridBlock, MediaBlock]]
+    blocks: List[Union[StickerBlock, Separator, TextBlock, ShotGridBlock, MediaBlock]]
     createdAt: Union[int, float]
     likes: List[Union[str, LikeWithTimestamp]]
     views: List[Union[str, LikeWithTimestamp]]
@@ -129,7 +150,7 @@ class DocShotData(BaseModel):
     authorId: str
     title: str
     rootBlock: MediaBlock
-    blocks: List[Union[TextBlock, ShotGridBlock, MediaBlock]]
+    blocks: List[Union[StickerBlock, Separator, TextBlock, ShotGridBlock, MediaBlock]]
     createdAt: Union[int, float]
     likes: List[str]
     views: List[str]
