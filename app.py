@@ -13,13 +13,12 @@ from api.user import router as UserRouter
 from api.auth import router as AuthRouter
 from api.search import router as SearchRouter
 from api.tag import router as TagRouter
-from api.note import router as NoteRouter
 from api.files import router as FilesRouter
 from api.calendar import router as CalendarRouter
 from api.plus import router as PlusRouter
 
-app = FastAPI(docs_url=None, redoc_url=None)
-# app = FastAPI()
+# app = FastAPI(docs_url=None, redoc_url=None)
+app = FastAPI()
 
 origins = [
     'https://blck.darkmaterial.space',
@@ -47,7 +46,6 @@ app.include_router(UserRouter)
 app.include_router(AuthRouter)
 app.include_router(SearchRouter)
 app.include_router(TagRouter)
-app.include_router(NoteRouter)
 app.include_router(FilesRouter)
 app.include_router(CalendarRouter)
 app.include_router(PlusRouter)

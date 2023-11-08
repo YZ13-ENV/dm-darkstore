@@ -1,7 +1,7 @@
-from typing import Optional, Union
+from typing import List, Optional, Union
 from helpers.nickname import getUidByNickName
 from schemas.draft import  DraftToPublish
-from schemas.shot import CommentBlock, NewCommentBlock, ShotData, ShotDataForUpload
+from schemas.shot import CommentBlock, DocShotData, NewCommentBlock, ShotData, ShotDataForUpload
 from services.shotService import ShotService
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache

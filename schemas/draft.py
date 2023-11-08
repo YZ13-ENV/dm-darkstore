@@ -14,17 +14,10 @@ class DraftShotData(BaseModel):
     class Config: 
         orm_mode = True
 
-class DraftToPublish(BaseModel):
-    isDraft: bool
-    enableMdSyntax: bool
-    authorId: str
-    title: str
-    rootBlock: MediaBlock
-    blocks: List[Union[StickerBlock, Separator, TextBlock, ShotGridBlock, MediaBlock]]
-    createdAt: Union[int, float]
+class DraftToPublish(DraftShotData):
     tags: List[str]
+    enableMdSyntax: bool
     needFeedback: bool
-    thumbnail: Optional[Thumbnail]
 
     class Config: 
         orm_mode = True

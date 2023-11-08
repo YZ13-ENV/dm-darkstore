@@ -2,7 +2,7 @@ from typing import List, Optional
 from fastapi import APIRouter
 from database.search_history import add_in_history
 from database.shot import getAllShots, getCreatedDate, getViews
-from helpers.searcher import createEventSearchQuery, createNoteSearchQuery, createShotSearchQuery, divide_chunks, getSearchedEvents, getSearchedNotes, getSearchedShots, shotSearcher
+from helpers.searcher import shotSearcher
 from schemas.shot import DocShotData
 from fastapi_cache.decorator import cache
 from firebase import db
@@ -13,21 +13,6 @@ router = APIRouter(
     tags=['Поиск']
 )
 
-@router.get('/global')
-@cache(expire=60)
-async def globalSearch(userId: str, q: str):
-    shots = await getSearchedShots(userId=userId, q=q.lower())
-    chunkedShots = divide_chunks(shots, 3)
-    shotsQueries = await createShotSearchQuery(userId=userId, list=chunkedShots)
-
-    events = await getSearchedEvents(userId=userId, q=q.lower())
-    eventQueries = await createEventSearchQuery(userId=userId, list=events)
-
-    notes = await getSearchedNotes(userId=userId, q=q.lower())
-    notesQueries = await createNoteSearchQuery(userId=userId, list=notes)
-    allQueries = [ *notesQueries, *eventQueries, *shotsQueries ]
-
-    return allQueries
 
 @router.get('/query/{q}/{order}')
 @cache(expire=60)

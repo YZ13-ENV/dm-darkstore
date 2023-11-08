@@ -20,7 +20,6 @@ class Thumbnail(BaseModel):
     height: int
     link: str
 
-# blocks
 class MediaBlock(BaseModel):
     type: str
     link: str
@@ -50,10 +49,6 @@ class StickerBlock(BaseModel):
 
 class TextBlock(BaseModel):
     type: str
-    size: Optional[int]
-    align: Optional[str]
-    isBold: Optional[bool]
-    isItalic: Optional[bool]
     text: str
 
     class Config: 
@@ -105,22 +100,7 @@ class ShotDataForUpload(BaseModel):
     class Config: 
         orm_mode = True
 
-
-class ThumbnailThree(BaseModel):
-    desktop: Thumbnail
-    mobile: Thumbnail
-    thumbnail: Thumbnail
-
-    class Config: 
-        orm_mode = True
-
-class ViewWithTimestamp(BaseModel):
-    uid: str
-    createdAt: Union[float, int]
-    class Config: 
-        orm_mode = True
-
-class LikeWithTimestamp(BaseModel):
+class ActionWithUid(BaseModel):
     uid: str
     createdAt: Union[float, int]
     class Config: 
@@ -134,8 +114,8 @@ class ShotData(BaseModel):
     rootBlock: MediaBlock
     blocks: List[Union[StickerBlock, Separator, TextBlock, ShotGridBlock, MediaBlock]]
     createdAt: Union[int, float]
-    likes: List[Union[str, LikeWithTimestamp]]
-    views: List[Union[str, LikeWithTimestamp]]
+    likes: List[ActionWithUid]
+    views: List[ActionWithUid]
     comments: List[CommentBlock]
     needFeedback: bool
     tags: List[str]
@@ -144,20 +124,8 @@ class ShotData(BaseModel):
     class Config: 
         orm_mode = True
 
-class DocShotData(BaseModel):
+class DocShotData(ShotData):
     doc_id: str
-    isDraft: bool
-    authorId: str
-    title: str
-    rootBlock: MediaBlock
-    blocks: List[Union[StickerBlock, Separator, TextBlock, ShotGridBlock, MediaBlock]]
-    createdAt: Union[int, float]
-    likes: List[str]
-    views: List[str]
-    comments: List[CommentBlock]
-    needFeedback: bool
-    tags: List[str]
-    thumbnail: Optional[Thumbnail]
 
     class Config: 
         orm_mode = True
