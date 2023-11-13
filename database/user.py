@@ -122,7 +122,7 @@ async def setShortDataFromDB(userId: str):
             auth.set_custom_user_claims(userId, { 'isSubscriber': False })
         short = {
             'short': {
-                'uid': record._data.get('uid'),
+                'uid': record._data.get('uid') or userId,
                 'email': record._data.get('email'),
                 'displayName': record._data.get('displayName'),
                 'photoUrl': record._data.get('photoUrl'),
@@ -141,7 +141,7 @@ async def getShortDataFromRecord(userId: str):
             auth.set_custom_user_claims(userId, { 'isSubscriber': False })
         short = {
             'short': {
-                'uid': record._data.get('uid'),
+                'uid': record._data.get('uid') or userId,
                 'email': record._data.get('email'),
                 'displayName': record._data.get('displayName'),
                 'photoUrl': record._data.get('photoUrl'),
