@@ -118,11 +118,15 @@ async def getShortData(userId: str):
 async def setShortDataFromDB(userId: str):
     record = await getUserRecord(userId=userId)
     if record:
+        if not record.custom_claims or not record.custom_claims.get('isSubscriber'):
+            auth.set_custom_user_claims(userId, { 'isSubscriber': False })
         short = {
             'short': {
+                'uid': record._data.get('uid'),
                 'email': record._data.get('email'),
                 'displayName': record._data.get('displayName'),
                 'photoUrl': record._data.get('photoUrl'),
+                'isSubscriber': record.custom_claims.get('isSubscriber')
             }
         }
         userRef = db.collection('users').document(userId)
@@ -137,6 +141,7 @@ async def getShortDataFromRecord(userId: str):
             auth.set_custom_user_claims(userId, { 'isSubscriber': False })
         short = {
             'short': {
+                'uid': record._data.get('uid'),
                 'email': record._data.get('email'),
                 'displayName': record._data.get('displayName'),
                 'photoUrl': record._data.get('photoUrl'),
@@ -150,11 +155,15 @@ async def getShortDataByEmail(email: str):
     try:
         record = auth.get_user_by_email(email=email)
         if record:
+            if not record.custom_claims or not record.custom_claims.get('isSubscriber'):
+                auth.set_custom_user_claims(record._data.get('uid'), { 'isSubscriber': False })
             short = {
                 'short': {
+                    'uid': record._data.get('uid'),
                     'email': record._data.get('email'),
                     'displayName': record._data.get('displayName'),
                     'photoUrl': record._data.get('photoUrl'),
+                    'isSubscriber': record.custom_claims.get('isSubscriber')
                 }
             }
             return short
