@@ -5,6 +5,7 @@ from database.user import getRecommendationTags
 from firebase import db, auth
 from firebase_admin import firestore
 from helpers.nickname import getUidByNickName
+from fastapi_cache import FastAPICache
 # from helpers.nickname import getUidByNickName
 from services.userService import UserService
 
@@ -43,7 +44,7 @@ async def setNickName(nickname: str, uid: str):
     return None
 
 @router.get('/short/nickname/{nickname}')
-@cache(expire=120)
+@cache(namespace='users', expire=120)
 async def getShortData(nickname: str):
     userId: Union[str, None] = await getUidByNickName(nickname=nickname)
     if userId:
@@ -55,7 +56,7 @@ async def getShortData(nickname: str):
 
 
 @router.get('/shortData')
-@cache(expire=120)
+@cache(namespace='users', expire=120)
 async def getShortData(userId: str):
     service = UserService(userId)
     data = await service.getShortData()
@@ -71,10 +72,11 @@ async def getTokenToAuth(userId: str):
 async def updateUser(userId: str, displayName: Optional[str]=None, photoUrl: Optional[str]=None):
     service = UserService(userId=userId)
     isComplete = service.updateUser(displayName, photoUrl)
+    await FastAPICache.clear('users')
     return isComplete
 
 @router.get('/shortByEmail')
-@cache(expire=120)
+@cache(namespace='users', expire=120)
 async def getShortByEmail(email: str):
     service = UserService('')
     shortData = await service.getShortDataByEmail(email)

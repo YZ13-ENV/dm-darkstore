@@ -1,18 +1,20 @@
 from typing import List, Optional, Union
 from helpers.nickname import getUidByNickName
 from schemas.draft import  DraftToPublish
-from schemas.shot import CommentBlock, DocShotData, NewCommentBlock, ShotData, ShotDataForUpload
+from schemas.shot import CommentBlock, NewCommentBlock, ShotData, ShotDataForUpload
 from services.shotService import ShotService
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 from database.shot import chunkUserWithOrder, chunkWithOrder, chunkWithOrderAndCategory, getShot
+from fastapi_cache import FastAPICache
+
 router = APIRouter(
     prefix='/shots',
     tags=['Работы']
 )
 
 @router.get('/onlyShots/{nickname}')
-@cache(expire=60)
+@cache(namespace='shots', expire=60)
 async def getOnlyShots(nickname: str, order: Optional[str]='popular', limit: Optional[int]=None, exclude: Optional[str]=None):
     userId: Union[str, None] = await getUidByNickName(nickname=nickname)
     if userId:
@@ -23,7 +25,7 @@ async def getOnlyShots(nickname: str, order: Optional[str]='popular', limit: Opt
         return None
 
 @router.get('/onlyDrafts/{nickname}')
-@cache(expire=60)
+@cache(namespace='shots', expire=60)
 async def getOnlyDrafts(nickname: str, asDoc: bool=True):
     userId: Union[str, None] = await getUidByNickName(nickname=nickname)
     if userId:
@@ -34,19 +36,19 @@ async def getOnlyDrafts(nickname: str, asDoc: bool=True):
         return None
 
 @router.get('/all/{order}')
-@cache(expire=60)
+@cache(namespace='shots', expire=60)
 async def getSomeShots(order: str='popular', skip: Optional[str]=None):
     shots = await chunkWithOrder(order=order, skip=int(skip))
     return shots
 
 @router.get('/all/{order}/{category}')
-@cache(expire=60)
+@cache(namespace='shots', expire=60)
 async def getSomeShotsWithCategories(order: str='popular', category: Optional[str]=None, skip: Optional[str]=None):
     shots = await chunkWithOrderAndCategory(order=order, category=category, skip=int(skip))
     return shots
 
 @router.get('/user/{nickname}/{order}')
-@cache(expire=60)
+@cache(namespace='shots', expire=60)
 async def getUserShots(nickname: str, order: str='popular', skip: Optional[str]=None):
     userId: Union[str, None] = await getUidByNickName(nickname=nickname)
     if userId:
@@ -56,19 +58,19 @@ async def getUserShots(nickname: str, order: str='popular', skip: Optional[str]=
         return None
 
 @router.get('/count/{order}')
-@cache(expire=60)
+@cache(namespace='shots', expire=60)
 async def getSomeShotsCount(order: str='popular'):
     count = await chunkWithOrder(order=order, skip=None)
     return count
 
 @router.get('/count/{order}/{category}')
-@cache(expire=60)
+@cache(namespace='shots', expire=60)
 async def getSomeShotsCountWithCategories(category: str, order: str='popular'):
     count = await chunkWithOrderAndCategory(order=order, category=category, skip=None)
     return count
 
 @router.get('/user/count/{nickname}/{order}')
-@cache(expire=60)
+@cache(namespace='shots', expire=60)
 async def getUserShots(nickname: str, order: str='popular'):
     userId: Union[str, None] = await getUidByNickName(nickname=nickname)
     if userId:
@@ -84,13 +86,13 @@ async def updateShot(userId: str, shotId: str, shot: ShotData):
     return isDone
 
 @router.get('/shot/{shotId}')
-@cache(expire=60)
+@cache(namespace='shots', expire=60)
 async def getShotWithShotId(shotId: str):
     shot = await getShot(shotId=shotId)
     return shot
 
 @router.get('/shot/{shotId}/{userId}')
-@cache(expire=60)
+@cache(namespace='shots', expire=60)
 async def getShotWithUserIdAndShotId(userId: str, shotId: str):
     shot = await getShot(userId=userId, shotId=shotId)
     return shot
@@ -105,6 +107,7 @@ async def updateDraft(userId: str, draftId: str, draft: ShotDataForUpload):
 async def publishDraft(userId: str, draftId: str, draft: DraftToPublish):
     service = ShotService(userId=userId)
     isDone = await service.publishDraft(draftId=draftId, draft=draft)
+    await FastAPICache.clear('shots')
     return isDone
 
 @router.post('/comment')
