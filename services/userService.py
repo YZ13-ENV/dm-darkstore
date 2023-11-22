@@ -9,6 +9,9 @@ class UserService():
     async def getShortData(self):
         if (self.__userId):
             data: Dict[str, Any] = await getShortDataFromRecord(self.__userId)
+            uid = data.get('uid')
+            if not uid:
+                data.update({ 'uid': self.__userId })
             return data
         else:
             return None
